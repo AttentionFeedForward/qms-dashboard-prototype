@@ -1,0 +1,10 @@
+const fs=require('fs');const vm=require('vm');const assert=require('assert');
+const html=fs.readFileSync('../index.html','utf8');const app=fs.readFileSync('../app.js','utf8');const integration=fs.readFileSync('../two-board-integration.js','utf8');const c={window:{}};vm.runInNewContext(fs.readFileSync('../data.js','utf8'),c);const d=c.window.QMS_V2;
+const check=(n,fn)=>{try{fn();console.log('PASS '+n)}catch(e){console.error('FAIL '+n+': '+e.message);process.exitCode=1}};
+check('两个一级看板通过标签切换且单视图显示',()=>{for(const x of ['viewTabs','data-view="production"','data-view="quality"','view-pane'])assert.ok(html.includes(x));assert.ok(app.includes('activateView'))});
+check('质检看板包含四个内部维度',()=>{for(const x of ['data-quality-view="process"','data-quality-view="workshop"','data-quality-view="team"','data-quality-view="worker"'])assert.ok(html.includes(x));assert.ok(integration.includes('activateQualityPane'))});
+check('工序路线完整且不含物流阶段',()=>{assert.strictEqual(d.process.length,15);assert.ok(!d.process.some(x=>x.stage==='物流阶段'));for(const x of ['ST01','ST02','ST03','ST04','ST05','ST06','ST07','ST08','AR01','AR02','AR03','AR04','AR05','AR06','AR07'])assert.ok(d.process.some(p=>p.code===x));});
+check('ITP工序清单准确',()=>{const itp=d.process.filter(x=>x.itp).map(x=>x.code);assert.strictEqual(JSON.stringify(itp),JSON.stringify(['ST03','ST04','ST05','ST06','ST07','ST08','AR01','AR02','AR03','AR04','AR05','AR06']));});
+check('工序质检表包含四项展示指标',()=>{for(const x of ['processTable','x.count','x.fpy','x.docs','x.accept'])assert.ok(app.includes(x));});
+check('箱体分布沿完整路线并包含仓储运输节点',()=>{for(const x of ['dist-process','boxFlow','boxRecords','flow-total'])assert.ok(app.includes(x)||html.includes(x));for(const x of ['ST01','AR07'])assert.ok(d.process.some(p=>p.code===x));assert.strictEqual(d.boxFlow.reduce((s,x)=>s+x.pct,0),100);});
+console.log(`\nRequirement tests completed${process.exitCode?' with failures':' successfully'}.`);

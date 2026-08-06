@@ -1,0 +1,164 @@
+/* 一级导航同时承担当前页面标题，移除重复标题区域。 */
+.view-pane > .section-head {
+  display: none;
+}
+
+#viewTabs.minimal-primary-tabs {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 48px;
+  max-width: none;
+  margin: 20px 0 0;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid #18363d;
+  background: transparent;
+}
+
+#viewTabs.minimal-primary-tabs button {
+  position: relative;
+  display: grid;
+  width: auto;
+  min-height: 0;
+  padding: 0 0 13px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: #617f87;
+  text-align: left;
+  cursor: pointer;
+  transition: color .18s ease;
+}
+
+#viewTabs.minimal-primary-tabs button::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: -1px;
+  left: 0;
+  height: 2px;
+  background: #55d6d0;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .18s ease;
+}
+
+#viewTabs.minimal-primary-tabs button span {
+  color: #4f737b;
+  font: 700 10px/1.2 Consolas, 'Courier New', monospace;
+  letter-spacing: .12em;
+  transition: color .18s ease;
+}
+
+#viewTabs.minimal-primary-tabs button strong {
+  margin-top: 6px;
+  color: inherit;
+  font-size: 20px;
+  line-height: 1.25;
+  letter-spacing: 0;
+}
+
+#viewTabs.minimal-primary-tabs button:hover,
+#viewTabs.minimal-primary-tabs button.active {
+  background: transparent;
+  color: #eef8f8;
+}
+
+#viewTabs.minimal-primary-tabs button.active span {
+  color: #58d8d2;
+}
+
+#viewTabs.minimal-primary-tabs button.active::after {
+  transform: scaleX(1);
+}
+
+#viewTabs.minimal-primary-tabs button:focus-visible,
+.minimal-subtabs button:focus-visible {
+  outline: 1px solid #72e5df;
+  outline-offset: 5px;
+}
+
+.nav-context-copy {
+  margin: 8px 0 20px;
+  color: #6f8e96;
+  font-size: 12px;
+}
+
+/* 两个看板的二级分页使用同一套无框文字导航。 */
+.quality-tabs.minimal-subtabs,
+.production-tabs.minimal-subtabs {
+  display: flex;
+  grid-template-columns: none;
+  align-items: flex-end;
+  gap: 34px;
+  max-width: none;
+  margin: 0 0 16px;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid #18363d;
+  border-radius: 0;
+  background: transparent;
+}
+
+.minimal-subtabs button {
+  position: relative;
+  width: auto;
+  min-height: 0;
+  padding: 0 0 11px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #698890;
+  font-size: 14px;
+  cursor: pointer;
+  transition: color .18s ease;
+}
+
+.minimal-subtabs button::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: -1px;
+  left: 0;
+  height: 2px;
+  background: #55d6d0;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .18s ease;
+}
+
+.minimal-subtabs button:hover,
+.minimal-subtabs button.active,
+.quality-tabs.minimal-subtabs button:hover,
+.quality-tabs.minimal-subtabs button.active {
+  border-color: transparent;
+  background: transparent;
+  color: #67dfd9;
+}
+
+.minimal-subtabs button.active::after {
+  transform: scaleX(1);
+}
+
+@media (max-width: 760px) {
+  #viewTabs.minimal-primary-tabs {
+    align-items: stretch;
+    gap: 24px;
+  }
+
+  #viewTabs.minimal-primary-tabs button strong {
+    font-size: 16px;
+  }
+
+  .quality-tabs.minimal-subtabs,
+  .production-tabs.minimal-subtabs {
+    gap: 24px;
+    overflow-x: auto;
+  }
+
+  .minimal-subtabs button {
+    flex: 0 0 auto;
+  }
+}

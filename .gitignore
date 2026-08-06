@@ -1,0 +1,24 @@
+# Historical and review-only pages
+index-final.html
+index-workshop.html
+
+# Reports and delivery notes
+CHANGELOG-*.md
+TEST-REPORT*.md
+
+# Source documents and archives
+*.docx
+*.xlsx
+*.xls
+*.csv
+*.zip
+*.tar.gz
+
+# Generated output and dependencies
+dist/
+node_modules/
+coverage/
+*.log
+*.tmp
+.DS_Store
+Thumbs.db

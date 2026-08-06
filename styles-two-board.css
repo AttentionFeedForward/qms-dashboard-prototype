@@ -1,0 +1,357 @@
+.primary-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(260px, 1fr));
+  gap: 10px;
+  max-width: 760px;
+}
+
+.primary-tabs button {
+  min-height: 44px;
+  font-size: 14px;
+  letter-spacing: .04em;
+}
+
+.production-stack {
+  display: grid;
+  gap: 18px;
+}
+
+.dashboard-panel {
+  padding: 18px;
+  border: 1px solid #1e4149;
+  border-radius: 10px;
+  background: #050505;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, .18);
+}
+
+.panel-heading,
+.subsection-head,
+.production-chart-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.panel-heading {
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #17333a;
+}
+
+.panel-heading > div,
+.production-chart-head > div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.panel-heading h3,
+.panel-heading p,
+.manufacturing-group-title h4,
+.manufacturing-card h5,
+.production-chart-head h3 {
+  margin: 0;
+}
+
+.panel-heading p {
+  margin-top: 4px;
+  color: #6f8e96;
+  font-size: 12px;
+}
+
+.panel-index {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border: 1px solid #2b5c65;
+  border-radius: 8px;
+  color: #58d8d2;
+  font-weight: 700;
+  font-family: Consolas, monospace;
+}
+
+.data-timestamp {
+  color: #7898a0;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.manufacturing-progress {
+  display: grid;
+  gap: 20px;
+}
+
+.manufacturing-group {
+  padding: 14px;
+  border: 1px solid #15343b;
+  border-radius: 8px;
+  background: #030606;
+}
+
+.manufacturing-group-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.manufacturing-group-title > span {
+  color: #56d7d1;
+  font: 700 12px/1 Consolas, monospace;
+}
+
+.manufacturing-group-title h4 {
+  font-size: 15px;
+}
+
+.manufacturing-group-title small {
+  margin-left: auto;
+  color: #64838b;
+}
+
+.manufacturing-route {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.manufacturing-card {
+  position: relative;
+  min-width: 0;
+  min-height: 142px;
+  padding: 13px;
+  overflow: hidden;
+  border: 1px solid #24474f;
+  border-radius: 8px;
+  background: #050505;
+  color: #eef8f8;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color .18s ease, transform .18s ease, box-shadow .18s ease;
+}
+
+.manufacturing-card:hover {
+  z-index: 1;
+  transform: translateY(-2px);
+  border-color: #56d7d1;
+  box-shadow: 0 9px 24px rgba(35, 197, 188, .12);
+}
+
+.manufacturing-card::after {
+  content: '';
+  position: absolute;
+  right: -18px;
+  bottom: -18px;
+  width: 55px;
+  height: 55px;
+  border: 1px solid rgba(85, 214, 208, .18);
+  border-radius: 50%;
+}
+
+.manufacturing-card .process-code {
+  color: #66dcd6;
+  font: 700 12px/1 Consolas, monospace;
+}
+
+.manufacturing-card h5 {
+  min-height: 34px;
+  margin-top: 7px;
+  color: #bcd1d5;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.manufacturing-card > strong {
+  display: block;
+  margin: 7px 0 5px;
+  color: #f2fbfb;
+  font-size: 23px;
+}
+
+.manufacturing-card p,
+.manufacturing-card em {
+  margin: 0;
+  color: #79979e;
+  font-size: 11px;
+  font-style: normal;
+}
+
+.manufacturing-card p b {
+  color: #d7e8ea;
+}
+
+.manufacturing-card em {
+  display: block;
+  margin-top: 5px;
+}
+
+.manufacturing-card em.positive {
+  color: #6cddb0;
+}
+
+.quality-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(150px, 1fr));
+  gap: 8px;
+  margin: 14px 0 16px;
+  padding: 6px;
+  border: 1px solid #17383f;
+  border-radius: 9px;
+  background: #050505;
+}
+
+.quality-tabs button {
+  min-height: 40px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: #76979f;
+  cursor: pointer;
+}
+
+.quality-tabs button:hover,
+.quality-tabs button.active {
+  border-color: #2c6e75;
+  background: #0b252a;
+  color: #68e0da;
+}
+
+.quality-pane {
+  display: none;
+}
+
+.quality-pane.active {
+  display: block;
+}
+
+.subsection-head {
+  margin-bottom: 12px;
+}
+
+.subsection-head h3 {
+  margin: 3px 0 0;
+}
+
+.undeveloped-state {
+  display: grid;
+  min-height: 410px;
+  place-content: center;
+  justify-items: center;
+  border: 1px dashed #28505a;
+  border-radius: 10px;
+  background: #050505;
+  text-align: center;
+}
+
+.undeveloped-state span {
+  color: #4f858d;
+  font: 12px/1 Consolas, monospace;
+  letter-spacing: .15em;
+}
+
+.undeveloped-state strong {
+  margin: 16px 0 8px;
+  font-size: 25px;
+}
+
+.undeveloped-state p {
+  max-width: 460px;
+  margin: 0;
+  color: #718e95;
+}
+
+/* 当前箱体分布只表达绝对数量，不再重复展示百分比。 */
+#distribution .dist-stage-title > b,
+#distribution .dist-substage-title > span,
+#distribution .flow-total {
+  display: none !important;
+}
+
+#distribution .dist-process strong,
+#distribution .fixed-pool strong {
+  color: #f2fbfb;
+}
+
+.production-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.production-summary > div {
+  padding: 14px;
+  border: 1px solid #21464e;
+  border-radius: 8px;
+  background: #050505;
+}
+
+.production-summary span,
+.production-summary strong {
+  display: block;
+}
+
+.production-summary span {
+  color: #77959c;
+  font-size: 12px;
+}
+
+.production-summary strong {
+  margin-top: 7px;
+  color: #65ddd7;
+  font-size: 22px;
+}
+
+.production-chart-head {
+  margin: 8px 0 10px;
+}
+
+.production-chart-head > div {
+  display: block;
+}
+
+.production-chart-head select {
+  min-width: 90px;
+}
+
+.manufacturing-trend-chart {
+  height: 380px;
+}
+
+.chart-fallback {
+  display: flex;
+  align-items: end;
+  justify-content: space-around;
+  height: 100%;
+  padding: 22px;
+  border: 1px solid #183941;
+}
+
+.chart-fallback span {
+  color: #75959c;
+  font-size: 11px;
+}
+
+.chart-fallback b {
+  display: block;
+  margin-top: 6px;
+  color: #61dcd6;
+}
+
+@media (max-width: 1400px) {
+  .manufacturing-route { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+}
+
+@media (max-width: 900px) {
+  .manufacturing-route { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .quality-tabs { grid-template-columns: repeat(2, 1fr); }
+  .primary-tabs { grid-template-columns: 1fr; max-width: none; }
+}
+
+@media (max-width: 620px) {
+  .manufacturing-route { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .panel-heading { align-items: flex-start; flex-direction: column; }
+  .production-summary { grid-template-columns: 1fr; }
+}

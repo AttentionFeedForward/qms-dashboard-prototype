@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QMS质量管理驾驶舱 Prototype V2</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles-two-board.css" />
+  <link rel="stylesheet" href="styles-production-tabs.css" />
+  <link rel="stylesheet" href="styles-minimal-navigation.css" />
+</head>
+<body>
+<div class="shell">
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">Q</span><div><small>QUALITY MANAGEMENT SYSTEM</small><h1>QMS质量管理驾驶舱</h1></div></div>
+    <div class="controls"><label>项目<select id="projectSelect"></select></label><label>时间范围<select id="rangeSelect"><option value="7">最近7天</option><option value="30" selected>最近30天</option><option value="90">最近90天</option><option value="all">项目全周期</option></select></label><span class="sync" id="syncStatus">● 数据已同步</span><button id="refreshBtn" title="刷新数据">↻</button></div>
+  </header>
+  <main>
+    <section class="summary-row" id="summaryRow"></section>
+    <nav class="view-tabs primary-tabs" id="viewTabs"><button class="active" data-view="production">模块箱体生产进度看板</button><button data-view="quality">模块箱体质检看板</button></nav>
+
+    <section class="view-pane active" data-view="production">
+      <div class="section-head"><div><p class="eyebrow">01 / PRODUCTION PROGRESS</p><h2>模块箱体生产进度看板</h2><p>查看制造阶段累计完成进度与当前箱体节点分布。</p></div></div>
+      <div class="production-stack">
+        <section class="dashboard-panel manufacturing-panel">
+          <div class="panel-heading"><div><span class="panel-index">01</span><div><h3>箱体制造进度图</h3><p>仅展示结构制造与装修施工工序累计完成情况</p></div></div><span class="data-timestamp" id="manufacturingTimestamp"></span></div>
+          <div id="manufacturingProgress" class="manufacturing-progress"></div>
+        </section>
+        <section class="dashboard-panel distribution-panel">
+          <div class="panel-heading"><div><span class="panel-index">02</span><div><h3>当前箱体分布图</h3><p>展示当前停留在各工序及后续节点的箱体数量</p></div></div><span class="data-timestamp" id="distributionTimestamp"></span></div>
+          <div class="distribution" id="distribution"></div>
+        </section>
+      </div>
+    </section>
+
+    <section class="view-pane" data-view="quality">
+      <div class="section-head quality-head"><div><p class="eyebrow">02 / QUALITY INSPECTION</p><h2>模块箱体质检看板</h2><p>从工序、车间、班组和工人四个维度查看质检表现。</p></div></div>
+      <nav class="quality-tabs" id="qualityTabs"><button class="active" data-quality-view="process">工序质检数据图</button><button data-quality-view="workshop">车间质检数据图</button><button data-quality-view="team">班组质检数据图</button><button data-quality-view="worker">工人质检数据图</button></nav>
+
+      <div class="quality-pane active" data-quality-view="process">
+        <div class="subsection-head"><div><p class="eyebrow">PROCESS QUALITY</p><h3>工序质检数据图</h3></div><div class="filters"><label>工序筛选<select id="processFilter"><option value="all">全部工序</option><option value="itp">只展示ITP工序</option></select></label><label>时间维度<select id="processPeriod"><option value="all">项目全周期</option><option value="day">日</option><option value="week">周</option><option value="month">月</option></select></label></div></div>
+        <div class="process-layout"><div class="route-panel"><div class="rule-strip"><b>亮灯规则</b><span><i class="status-icon red">!</i>红灯：FPY&lt;60% 或验收完成率&lt;75%</span><span><i class="status-icon amber">!</i>黄灯：FPY&lt;80% 或资料完成率&lt;90% 或验收完成率&lt;85%（无资料数据时不参与）</span><span><i class="status-icon green">✓</i>绿灯：未触发异常</span></div><div class="process-table-wrap"><table class="quality-table" id="processTable"></table></div></div><div class="overall-panel"><h3>项目总体指标</h3><div id="overallMetrics" class="metric-grid"></div><div class="chart-head"><div><span class="eyebrow">TREND</span><h3 id="overallChartTitle"></h3></div><select id="overallMetricSelect"></select></div><div id="overallFormula" class="formula-box"></div><div id="overallChart" class="chart"></div></div></div>
+      </div>
+
+      <div class="quality-pane" data-quality-view="workshop">
+        <div class="subsection-head"><div><p class="eyebrow">WORKSHOP QUALITY</p><h3>车间质检数据图</h3></div><label>排名指标<select id="workshopMetricSelect"><option value="count">累计完成箱体数量</option><option value="fpy">FPY</option><option value="docs">资料完成率</option><option value="accept">验收完成率</option></select></label></div>
+        <div class="workshop-layout"><div class="workshop-table-panel"><div class="rule-strip"><b>亮灯规则</b><span><i class="status-icon red">!</i>红灯：FPY&lt;60% 或验收完成率&lt;75%</span><span><i class="status-icon amber">!</i>黄灯：FPY&lt;80% 或资料完成率&lt;90% 或验收完成率&lt;85%（无资料数据时不参与）</span><span><i class="status-icon green">✓</i>绿灯：未触发异常</span></div><div class="process-table-wrap"><table class="quality-table" id="workshopTable"></table></div></div><div class="ranking-panel"><h3 id="rankingTitle">车间指标排名</h3><div id="workshopRanking"></div></div></div>
+      </div>
+
+      <div class="quality-pane" data-quality-view="team"><div class="undeveloped-state"><span>TEAM QUALITY</span><strong>班组质检数据图</strong><p>该功能暂未开发，后续将接入班组责任关系与质检指标。</p></div></div>
+      <div class="quality-pane" data-quality-view="worker"><div class="undeveloped-state"><span>WORKER QUALITY</span><strong>工人质检数据图</strong><p>该功能暂未开发，后续将接入作业人员与验收记录。</p></div></div>
+    </section>
+  </main>
+  <footer>QMS QUALITY CONTROL TOWER · Prototype V2 · 原型数据，仅用于交互评审</footer>
+</div>
+<div id="backdrop" class="backdrop"></div><aside id="drawer" class="drawer"><div class="drawer-head"><div><span class="eyebrow">DETAIL VIEW</span><h2 id="drawerTitle"></h2></div><button id="closeDrawer">×</button></div><div id="drawerBody"></div></aside>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<script src="p05-data.js"></script><script src="p05-quality-data.js"></script><script src="data.js"></script>
+<script src="p05-production-data.js"></script>
+<script src="p05-workshop-quality-data.js"></script>
+<script src="app.js"></script>
+<script src="p05-workshop-integration.js"></script>
+<script src="two-board-integration.js"></script>
+<script src="production-tabs.js"></script>
+<script src="minimal-navigation.js"></script>
+</body>
+</html>

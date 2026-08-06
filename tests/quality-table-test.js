@@ -1,0 +1,12 @@
+const fs=require('fs');const assert=require('assert');
+const html=fs.readFileSync('../index.html','utf8');const app=fs.readFileSync('../app.js','utf8');const data=fs.readFileSync('../data.js','utf8');
+const check=(n,fn)=>{try{fn();console.log('PASS '+n)}catch(e){console.error('FAIL '+n+': '+e.message);process.exitCode=1}};
+check('工序和车间均使用动态表格',()=>{assert.ok(html.includes('processTable'));assert.ok(html.includes('workshopTable'));assert.ok(app.includes('data-process-row'));assert.ok(app.includes('data-workshop-row'));});
+check('工序表删除阶段和样本量列',()=>{assert.ok(app.includes("const heads=['亮灯','工序编码','工序名称','ITP','累计完成箱体数量','FPY','资料完成率','验收完成率']"));});
+check('工序按结构制造和装修施工分组',()=>{assert.ok(app.includes("['结构制造','装修施工'].map"));assert.ok(app.includes('colspan="8"'));});
+check('车间表不展示所属类别和样本量',()=>{assert.ok(app.includes("const heads=['亮灯','车间名称','累计完成箱体数量','FPY','资料完成率','验收完成率']"));assert.ok(!html.includes('所属类别'));});
+check('亮灯规则和鼠标原因提示存在',()=>{assert.ok(html.includes('亮灯规则'));assert.ok(app.includes('title="${esc(lightReason(x))}"'));});
+check('趋势图具备本地SVG兜底',()=>{assert.ok(app.includes('drawSvgChart'));assert.ok(app.includes('if(!window.echarts) return drawSvgChart'));});
+check('趋势图显示计算公式',()=>{assert.ok(app.includes('formulaMap'));assert.ok(app.includes('overallFormula'));assert.ok(app.includes('drawerFormula'));});
+check('车间名称使用本厂',()=>{assert.ok(data.includes('本厂'));assert.ok(!data.includes('本部')); });
+console.log(`\nQuality table tests completed${process.exitCode?' with failures':' successfully'}.`);

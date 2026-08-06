@@ -1,0 +1,23 @@
+const fs = require('fs');
+const vm = require('vm');
+const assert = require('assert');
+const html = fs.readFileSync('../index.html','utf8');
+const app = fs.readFileSync('../app.js','utf8');
+const integration = fs.readFileSync('../two-board-integration.js','utf8');
+const ctx = { window: {} };
+vm.runInNewContext(fs.readFileSync('../data.js','utf8'), ctx);
+const d = ctx.window.QMS_V2;
+function test(name, fn){ try{fn(); console.log(`PASS ${name}`)}catch(e){console.error(`FAIL ${name}: ${e.message}`);process.exitCode=1} }
+test('页面包含生产进度与质检两个一级看板',()=>{ for(const x of ['模块箱体生产进度看板','模块箱体质检看板']) assert.ok(html.includes(x)); });
+test('生产看板包含制造进度图和当前箱体分布图',()=>{ for(const x of ['箱体制造进度图','当前箱体分布图','manufacturingProgress','distributionTimestamp']) assert.ok(html.includes(x)); });
+test('质检看板包含四个维度且班组工人明确暂未开发',()=>{ for(const x of ['工序质检数据图','车间质检数据图','班组质检数据图','工人质检数据图','暂未开发']) assert.ok(html.includes(x)); });
+test('车间名称和分组完整',()=>{ assert.strictEqual(d.workshops.length,8); assert.strictEqual(d.workshops.filter(x=>x.group==='结构车间').length,5); assert.strictEqual(d.workshops.filter(x=>x.group==='装修车间').length,3); });
+test('指标分类为12项且不包含工序不合格率',()=>{ const n=Object.values(d.categories).reduce((s,c)=>s+c.metrics.length,0); assert.strictEqual(n,12); assert.ok(!html.includes('工序不合格率')); });
+test('质量综合得分公式可计算',()=>{ const m=d.metrics; const score=m.fpy.base*.5+m.reportDocs.base*.2+(1-m.rework.base/100)*30; assert.ok(score>0&&score<100); });
+test('工序进度合计100%',()=>{ const total=d.process.reduce((s,x)=>s+x.pct,0); assert.strictEqual(total,100); });
+test('亮灯规则覆盖工序和车间',()=>{ assert.ok(d.process.some(x=>x.alert==='red')); assert.ok(d.workshops.some(x=>x.alert==='amber')); assert.ok(['green','amber','red'].every(x=>d.process.some(y=>y.alert===x)&&d.workshops.some(y=>y.alert===x))); });
+test('制造进度支持日周月趋势抽屉',()=>{ for(const x of ['openProductionDrawer','manufacturingPeriod','day','week','month']) assert.ok(integration.includes(x)); });
+test('两个质检详情抽屉均包含指标趋势逻辑',()=>{ assert.ok((app.match(/openProcess/g)||[]).length>=1); assert.ok((app.match(/openWorkshop/g)||[]).length>=1); assert.ok(app.includes('drawerChart')&&app.includes('data-drawer-metric')); });
+test('不存在独立风险列表渲染',()=>{ assert.ok(!html.includes('riskList')); assert.ok(app.includes('renderLights')); });
+test('Mock/API替换结构包含项目、指标、工序和车间',()=>{ assert.ok(d.projects.length>=2&&Object.keys(d.metrics).length===12&&d.process.length>=5&&d.workshops.length===8); });
+console.log(`\nTests completed${process.exitCode?' with failures':' successfully'}.`);

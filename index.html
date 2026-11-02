@@ -3,11 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>QMS质量管理驾驶舱 Prototype V2</title>
+  <title>QMS质量管理驾驶舱</title>
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="styles-two-board.css" />
   <link rel="stylesheet" href="styles-production-tabs.css" />
   <link rel="stylesheet" href="styles-minimal-navigation.css" />
+  <link rel="stylesheet" href="process-demos/route-detail.css" />
+  <link rel="stylesheet" href="styles-route-integration.css" />
 </head>
 <body>
 <div class="shell">
@@ -30,6 +32,11 @@
           <div class="panel-heading"><div><span class="panel-index">02</span><div><h3>当前箱体分布图</h3><p>展示当前停留在各工序及后续节点的箱体数量</p></div></div><span class="data-timestamp" id="distributionTimestamp"></span></div>
           <div class="distribution" id="distribution"></div>
         </section>
+        <section class="dashboard-panel process-route-panel">
+          <div class="panel-heading"><div><span class="panel-index">03</span><div><h3>工艺路线图</h3></div></div></div>
+          <div id="routeUnavailable" class="rd-empty-state"><strong>当前项目暂无工艺路线数据</strong>可切换至 RD-Rockdale 项目查看</div>
+          <iframe id="processRouteFrame" title="工艺路线图" hidden></iframe>
+        </section>
       </div>
     </section>
 
@@ -51,17 +58,21 @@
       <div class="quality-pane" data-quality-view="worker"><div class="undeveloped-state"><span>WORKER QUALITY</span><strong>工人质检数据图</strong><p>该功能暂未开发，后续将接入作业人员与验收记录。</p></div></div>
     </section>
   </main>
-  <footer>QMS QUALITY CONTROL TOWER · Prototype V2 · 原型数据，仅用于交互评审</footer>
+  <footer>QMS QUALITY CONTROL TOWER</footer>
 </div>
 <div id="backdrop" class="backdrop"></div><aside id="drawer" class="drawer"><div class="drawer-head"><div><span class="eyebrow">DETAIL VIEW</span><h2 id="drawerTitle"></h2></div><button id="closeDrawer">×</button></div><div id="drawerBody"></div></aside>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
 <script src="p05-data.js"></script><script src="p05-quality-data.js"></script><script src="data.js"></script>
 <script src="p05-production-data.js"></script>
 <script src="p05-workshop-quality-data.js"></script>
+<script src="process-demos/rockdale-route.js"></script>
+<script src="process-demos/route-detail.js"></script>
+<script src="rd-dashboard.js"></script>
 <script src="app.js"></script>
 <script src="p05-workshop-integration.js"></script>
 <script src="two-board-integration.js"></script>
 <script src="production-tabs.js"></script>
 <script src="minimal-navigation.js"></script>
+<script src="route-integration.js"></script>
 </body>
 </html>

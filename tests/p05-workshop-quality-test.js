@@ -13,7 +13,7 @@ vm.runInNewContext(
 const distribution = context.window.QMS_P05_DISTRIBUTION;
 const quality = context.window.QMS_P05_QUALITY;
 const workshops = context.window.QMS_P05_WORKSHOP_QUALITY.workshops;
-const index = fs.readFileSync('../index-workshop.html', 'utf8');
+const index = fs.readFileSync('../index.html', 'utf8');
 const integration = fs.readFileSync('../p05-workshop-integration.js', 'utf8');
 
 function test(name, fn) {
@@ -109,8 +109,8 @@ test('入口脚本加载顺序正确', () => {
       < scripts.indexOf('p05-workshop-quality-data.js'),
   );
   assert.ok(
-    scripts.indexOf('p05-workshop-quality-data.js')
-      < scripts.indexOf('data.js'),
+    scripts.indexOf('data.js')
+      < scripts.indexOf('p05-workshop-quality-data.js'),
   );
   assert.ok(scripts.indexOf('data.js') < scripts.indexOf('app.js'));
   assert.ok(

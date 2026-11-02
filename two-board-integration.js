@@ -55,6 +55,7 @@
   }
 
   function renderManufacturingProgress() {
+    if(app.state.project==='rd'){window.QMS_RD_DASHBOARD.render();return;}
     const host = $('#manufacturingProgress');
     if (!host) return;
     const data = productionData();
@@ -89,6 +90,7 @@
   }
 
   function patchDistribution() {
+    if(app.state.project==='rd')return;
     const host = $('#distribution');
     if (!host) return;
     if ($('#distributionTimestamp')) $('#distributionTimestamp').textContent = `数据时间：${formatTimestamp()}`;

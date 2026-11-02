@@ -9,7 +9,8 @@
 
   const definitions = [
     { key: 'manufacturing', label: '箱体制造进度图' },
-    { key: 'distribution', label: '当前箱体分布图' }
+    { key: 'distribution', label: '当前箱体分布图' },
+    { key: 'route', label: '工艺路线图' }
   ];
 
   const tabs = document.createElement('nav');

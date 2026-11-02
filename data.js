@@ -1,5 +1,6 @@
 window.QMS_V2 = {
   projects: [
+    { id: 'rd', name: 'RD-Rockdale项目', units: 156, status: 'synced' },
     { id: 'mos', name: 'MOS-马鞍山项目', units: 500, status: 'synced' },
     { id: 'p05', name: 'P05-货柜模块项目', units: 1764, status: 'synced' },
     { id: 'model', name: '1899-样板项目', units: 180, status: 'delayed' }

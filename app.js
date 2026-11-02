@@ -1,6 +1,8 @@
 (() => {
   const d = window.QMS_V2;
   const state = { project:'mos', range:'30', processFilter:'all', period:'all', overallMetric:'fpy', workshopMetric:'count', drawerChart:null };
+  const initialProject=new URLSearchParams(location.search).get('project');
+  if(d.projects.some(p=>p.id===initialProject))state.project=initialProject;
   const $ = s => document.querySelector(s);
   const $$ = s => [...document.querySelectorAll(s)];
   const metric = k => d.metrics[k];
@@ -24,7 +26,12 @@
     $('#refreshBtn').onclick=()=>{ $('#syncStatus').textContent='● 正在刷新'; setTimeout(()=>{ $('#syncStatus').textContent='● 数据已同步'; renderAll(); },500); };
     $('#closeDrawer').onclick=closeDrawer; $('#backdrop').onclick=closeDrawer; renderAll(); window.onresize=()=>Object.values(window.QMS_CHARTS||{}).forEach(c=>c.resize());
   }
-  function renderAll(){ renderHeader(); renderKpis(); renderProcess(); renderDistribution(); renderOverallMetrics(); renderOverallChart(); renderWorkshops(); activateView(document.querySelector('#viewTabs .active')?.dataset.view||'process'); }
+  function renderAll(){
+    document.body.dataset.project=state.project;
+    $('#rangeSelect').disabled=state.project==='rd';
+    if(state.project==='rd'){state.range='all';$('#rangeSelect').value='all';window.QMS_RD_DASHBOARD.render();activateView(document.querySelector('#viewTabs .active')?.dataset.view||'production');return;}
+    renderHeader(); renderKpis(); renderProcess(); renderDistribution(); renderOverallMetrics(); renderOverallChart(); renderWorkshops(); activateView(document.querySelector('#viewTabs .active')?.dataset.view||'production');
+  }
   function activateView(view){
     $$('#viewTabs button').forEach(b=>b.classList.toggle('active',b.dataset.view===view));
     $$('.view-pane').forEach(p=>p.classList.toggle('active',p.dataset.view===view));

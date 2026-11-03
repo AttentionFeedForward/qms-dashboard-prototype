@@ -21,14 +21,15 @@ function matches(n){const q=state.query.toLowerCase().replaceAll('-','').trim();
 function related(g){const n=get(state.selected);return !!n&&(n.groupId===g.id||n.id===g.source||n.id===g.target);}
 function measure(g,horizontal){
  const open=state.open.has(g.id),count=g.members.length;
- if(!open)return {width:horizontal?174:cardWidth+26,height:76};
- return horizontal?{width:30+count*cardWidth+(count-1)*14,height:cardHeight+72}:{width:cardWidth+26,height:72+count*cardHeight+(count-1)*14};
+ if(!open)return {width:horizontal?174:cardWidth+26,height:horizontal?76:62};
+ return horizontal?{width:30+count*cardWidth+(count-1)*14,height:cardHeight+72}:{width:cardWidth+26,height:60+count*cardHeight+(count-1)*10};
 }
 function layout(){
  const available=$('#viewport').clientWidth,horizontal=state.mode==='auto'?innerWidth>=800:state.mode==='horizontal';
  state.orientation=horizontal?'horizontal':'vertical';
  cardWidth=horizontal?160:Math.max(96,Math.min(160,Math.floor((available-72)/2)));
- const step=horizontal?cardWidth+44:cardHeight+64,start=horizontal?28:64;
+ cardHeight=horizontal?124:(cardWidth<132?104:96);
+ const step=horizontal?cardWidth+44:cardHeight+32,start=horizontal?28:52;
  const axis=mains.map((n,i)=>start+i*step+(n.phase==='AR'?72:0)),index=new Map(mains.map((n,i)=>[n.id,i]));
  const sizes=new Map(groups.map(g=>[g.id,measure(g,horizontal)]));
  for(const g of groups){
@@ -42,7 +43,7 @@ function layout(){
   const size=sizes.get(g.id),a=positions.get(g.source),b=positions.get(g.target),startPort=(horizontal?a.x:a.y)+(horizontal?cardWidth:cardHeight),endPort=(horizontal?b.x:b.y);
   const frame=horizontal?{x:(startPort+endPort-size.width)/2,y:64+cardHeight+40,...size}:{x:12+cardWidth+22,y:(startPort+endPort-size.height)/2,...size};
   frames.set(g.id,frame);
-  if(state.open.has(g.id))g.members.forEach((id,i)=>positions.set(id,horizontal?{x:frame.x+15+i*(cardWidth+14),y:frame.y+57}:{x:frame.x+13,y:frame.y+57+i*(cardHeight+14)}));
+  if(state.open.has(g.id))g.members.forEach((id,i)=>positions.set(id,horizontal?{x:frame.x+15+i*(cardWidth+14),y:frame.y+57}:{x:frame.x+13,y:frame.y+45+i*(cardHeight+10)}));
  }
  if(horizontal){graphWidth=axis.at(-1)+cardWidth+60;graphHeight=Math.max(...[...frames.values()].map(f=>f.y+f.height))+32;}
  else{graphWidth=2*cardWidth+72;graphHeight=Math.max(axis.at(-1)+cardHeight,...[...frames.values()].map(f=>f.y+f.height))+70;}

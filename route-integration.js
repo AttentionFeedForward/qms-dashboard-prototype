@@ -35,7 +35,7 @@
   document.addEventListener('keydown',e=>{
     if($('#drawer').dataset.routeDetail!=='true')return;
     if(e.key==='Escape'){$('#drawer').classList.remove('open');$('#backdrop').classList.remove('open');restoreFocus();}
-    if(e.key==='Tab'){const items=[...$('#drawer').querySelectorAll('button,select,[tabindex="0"]')];if(e.shiftKey&&document.activeElement===items[0]){e.preventDefault();items.at(-1).focus();}else if(!e.shiftKey&&document.activeElement===items.at(-1)){e.preventDefault();items[0].focus();}}
+    if(e.key==='Tab'){const items=[...$('#drawer').querySelectorAll('button,input,select,[tabindex="0"]')].filter(item=>!item.disabled&&item.getClientRects().length);if(e.shiftKey&&document.activeElement===items[0]){e.preventDefault();items.at(-1)?.focus();}else if(!e.shiftKey&&document.activeElement===items.at(-1)){e.preventDefault();items[0]?.focus();}}
   });
   const initial=new URLSearchParams(location.search).get('production');
   if(['manufacturing','distribution','route'].includes(initial))window.QMS_PRODUCTION_TABS.activate(initial);

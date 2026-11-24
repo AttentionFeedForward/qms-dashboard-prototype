@@ -1,0 +1,76 @@
+/* Match the MOS manufacturing drawer; let the added table adapt within it. */
+#drawer[data-route-detail="true"]:has(.pbd),dialog#drawer:has(.pbd){box-sizing:border-box;width:min(560px,92vw);max-width:92vw;overflow-x:clip;scrollbar-gutter:stable}
+.pbd{container-type:inline-size;min-width:0;max-width:100%;margin-top:24px;padding-top:20px;border-top:1px solid #28505a;color:#e8f3f1;font:14px "Microsoft YaHei",sans-serif}
+.pbd-heading{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+.pbd-title{display:flex;flex-wrap:wrap;align-items:baseline;gap:9px}
+.pbd-title h3{margin:0;font-size:16px;font-weight:600;line-height:1.5;color:#e8f3f1}
+.pbd-title>span{font-size:12px;color:#8faab3;white-space:nowrap}
+.pbd-heading-actions{display:flex;align-items:center;justify-content:space-between;flex:1;flex-basis:100%;gap:10px}
+.pbd-result{display:flex;align-items:baseline;gap:4px;white-space:nowrap;color:#bad1d3;font-size:14px;font-variant-numeric:tabular-nums}
+.pbd-result strong{font:600 23px Consolas,monospace;color:#8edfd0}
+.pbd-result small{font-size:12px;color:#8faab3;margin-left:3px}
+.pbd-export{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;min-height:36px;padding:7px 11px;border:1px solid #3d7778;border-radius:5px;background:#143a40;color:#abebe1;font-size:14px;cursor:pointer}
+.pbd-export:hover:not(:disabled){background:#1c4a4e;border-color:#6ac3b8}
+.pbd-export:disabled{cursor:default;opacity:.45}
+.pbd-filters{padding:11px;border:1px solid #2b4d57;border-radius:6px;background:#0d252d;margin-bottom:14px}
+.pbd-filter-grid{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:9px}
+.pbd label{display:flex;flex-direction:column;min-width:0;font-size:14px;color:#aac4ca}
+.pbd input,.pbd select{box-sizing:border-box;width:100%;min-width:0;height:40px;padding:8px 10px;background:#0a1e26;color:#e1efed;border:1px solid #345761;border-radius:5px;font-size:14px;color-scheme:dark}
+.pbd input::placeholder{color:#8faab4}
+.pbd select{appearance:none;padding-right:30px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='m1 1 5 5 5-5' fill='none' stroke='%239ebfc3' stroke-width='1.5'/%3E%3C/svg%3E");background-position:right 10px center;background-repeat:no-repeat}
+.pbd-search{position:relative}
+.pbd-search:before{content:"";position:absolute;left:12px;top:12px;width:10px;height:10px;border:1.5px solid #8fadb5;border-radius:50%;pointer-events:none}
+.pbd-search:after{content:"";position:absolute;left:22px;top:23px;width:5px;border-top:1.5px solid #8fadb5;transform:rotate(45deg);pointer-events:none}
+.pbd-search input{padding-left:34px}
+.pbd-time-controls{display:flex;flex-wrap:wrap;align-items:center;gap:9px;margin-top:9px}
+.pbd-periods{display:inline-flex;gap:2px;flex-shrink:0;padding:3px;border:1px solid #31515b;border-radius:5px;background:#091c23}
+.pbd-periods button{min-width:34px;height:32px;padding:5px 10px;border:0;border-radius:3px;background:none;color:#aac4cb;font-size:14px;cursor:pointer}
+.pbd-periods button.active{background:#28534e;color:#b9eee1}
+.pbd-periods button:hover{color:#e2f3eb}
+.pbd-date-fields{display:flex;align-items:center;gap:8px;flex:1;min-width:210px;order:3;flex-basis:100%}
+.pbd-date-fields .pbd-cutoff{display:flex;flex-direction:row;align-items:center;gap:8px;width:100%}
+.pbd-cutoff>span{white-space:nowrap;font-size:13px;color:#9bb9c0}
+.pbd-cutoff input{flex:1}
+.pbd-date-fields.is-range{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);min-width:0}
+.pbd-range-separator{font-size:13px;color:#95b0b8}
+.pbd-reset{margin-left:auto;padding:7px 0;flex-shrink:0;border:0;background:none;color:#a2d5cf;font-size:14px;cursor:pointer}
+.pbd-hints{display:flex;justify-content:space-between;flex-wrap:wrap;gap:3px 10px;margin-top:8px}
+.pbd-hints p{margin:0;color:#94b0b9;font-size:12px;line-height:1.7}
+.pbd-hints [hidden]{display:none}
+.pbd-error{margin:0 0 12px;padding:9px 11px;border:1px solid #80584f;border-radius:5px;background:#342629;color:#edb5a5;font-size:14px;line-height:1.6}
+.pbd-error[hidden]{display:none}
+.pbd-table-wrap{min-width:0;max-width:100%;max-height:min(54dvh,540px);overflow-x:clip;overflow-y:auto;scrollbar-gutter:stable;border:1px solid #2d4f5a;border-radius:6px;scrollbar-width:thin;scrollbar-color:#486e78 #0b2028;overscroll-behavior:contain}
+.pbd-table{width:100%;min-width:0;max-width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0;font-size:14px;font-variant-numeric:tabular-nums}
+.pbd-col-index{width:9%}.pbd-col-box{width:24%}.pbd-col-workshop{width:22%}.pbd-col-times{width:45%}
+.pbd-table th,.pbd-table td{padding:10px 8px;border-bottom:1px solid #264650;text-align:center;line-height:1.5;color:#d4e6e5}
+.pbd-table thead th{position:sticky;top:0;z-index:1;padding:11px 8px;background:#14323c;color:#b7d0d4;font-size:14px;font-weight:500;white-space:normal;overflow-wrap:anywhere}
+.pbd-table thead th:first-child{padding-left:4px;padding-right:4px}
+.pbd-table tbody th{font-weight:400}
+.pbd-table tbody tr:last-child>*{border-bottom:0}
+.pbd-table tbody tr:hover>*{background:#112c34}
+.pbd-table .pbd-index{font-family:Consolas,monospace;text-align:center;color:#8eacb7}
+.pbd-box{font-family:Consolas,monospace;white-space:normal;overflow-wrap:anywhere;color:#e1efeb}
+.pbd-times>div{display:grid;grid-template-columns:2em minmax(0,max-content);justify-content:center;column-gap:2ch;align-items:baseline;font-family:Consolas,monospace;line-height:1.65}
+.pbd-times>div>span{font:14px "Microsoft YaHei",sans-serif;color:#92b1bd}
+.pbd-times time{display:flex;flex-wrap:wrap;justify-content:center;gap:0 .6em;justify-self:center;min-width:0;font:14px Consolas,monospace;white-space:normal;color:#c4dce1}
+.pbd-times time>span{white-space:nowrap}
+.pbd-times>div:last-child time{color:#a4dacc}
+.pbd-table .pbd-empty{padding:32px 12px;text-align:center;white-space:normal;color:#a4bec6;font-size:14px;line-height:1.8}
+.pbd .mr-sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.pbd input:focus-visible,.pbd select:focus-visible,.pbd button:focus-visible{outline:2px solid #8ce0d0;outline-offset:2px}
+@container (max-width:420px){
+  .pbd-col-index{width:10%}.pbd-col-box{width:24%}.pbd-col-workshop{width:18%}.pbd-col-times{width:48%}
+  .pbd-table th,.pbd-table td,.pbd-table thead th{padding-left:4px;padding-right:4px;overflow-wrap:anywhere}
+  .pbd-table .pbd-index{font-size:12px}
+  .pbd-result{font-size:13px}.pbd-result strong{font-size:22px}.pbd-result small{font-size:12px}
+  .pbd-heading-actions{flex-wrap:wrap}.pbd-export{margin-left:auto;padding:7px 9px}
+  .pbd-filters{padding:10px}.pbd-filter-grid{gap:8px}
+  .pbd-periods{flex:1}.pbd-periods button{flex:1;padding:5px 8px}
+  .pbd-date-fields.is-range{grid-template-columns:minmax(0,1fr);gap:8px}
+  .pbd-date-fields.is-range label>.mr-sr-only{position:static;width:auto;height:auto;margin:0 0 4px;overflow:visible;clip:auto;white-space:normal;font-size:12px}
+  .pbd-range-separator{display:none}
+}
+@container (max-width:300px){
+  .pbd-times>div{grid-template-columns:minmax(0,1fr);justify-items:center}
+}
+@media(max-width:480px){#drawer[data-route-detail="true"]:has(.pbd),dialog#drawer:has(.pbd){padding-left:12px;padding-right:12px}}

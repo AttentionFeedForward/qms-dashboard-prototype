@@ -63,3 +63,20 @@ test('unknown workshop produces a true empty scope and the full route is recover
   assert.equal(catalog.scope('RD-R01','').totalBoxes,156);
   assert.equal(catalog.scope('RD-R02','').nodes.length,62);
 });
+
+test('all-route progress aggregates process quantities without changing route-specific data',()=>{
+  const all=catalog.aggregate(),first=all.nodes.find(node=>node.id==='ST-01'),fourth=all.nodes.find(node=>node.id==='ST-04');
+  assert.equal(all.totalBoxes,159);assert.equal(first.totalBound,159);
+  assert.equal(first.reported,124);assert.equal(first.accepted,124);
+  assert.equal(fourth.reported,109);assert.equal(fourth.accepted,108);
+  assert.equal(first.boundBoxes.length,124);assert.equal(new Set(first.records.map(record=>record.box)).size,first.records.length);
+  assert.equal(first.routeStats.length,2);assert.equal(first.routeStats.reduce((sum,row)=>sum+row.totalBoxes,0),159);
+  for(const node of all.nodes){
+    assert.equal(node.reported,node.records.filter(record=>record.reportedAt).length);
+    assert.equal(node.accepted,node.records.filter(record=>record.acceptedAt).length);
+    assert.ok(node.records.every(record=>record.routeId&&record.workshop));
+  }
+  assert.equal(catalog.scope('RD-R02').totalBoxes,3);
+  assert.equal(standard.nodes.find(node=>node.id==='ST-01').accepted,121);
+  assert.equal(JSON.stringify(context.window.ROCKDALE_ROUTE),original);
+});

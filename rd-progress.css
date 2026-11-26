@@ -1,0 +1,29 @@
+/* All progress-table changes in this file are limited to RD. */
+body[data-project="rd"] .rd-progress-toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:2px 0 14px;color:#8faeb5;font-size:12px}
+body[data-project="rd"] .rd-progress-toolbar p{margin:0;line-height:1.7}
+body[data-project="rd"] .rd-progress-switch{display:inline-flex;gap:3px;padding:3px;border:1px solid #2b535c;border-radius:6px;background:#091b21}
+body[data-project="rd"] .rd-progress-switch button{min-height:34px;padding:7px 13px;border:0;border-radius:3px;background:transparent;color:#92afb7;font-size:13px;white-space:nowrap}
+body[data-project="rd"] .rd-progress-switch button[aria-pressed="true"]{background:#1c4445;color:#b1eee0}
+body[data-project="rd"] .rd-progress-switch button:focus-visible{outline:2px solid #77d6c7;outline-offset:2px}
+body[data-project="rd"] .manufacturing-card{min-height:190px;padding:11px 10px}
+body[data-project="rd"] .manufacturing-card h5{height:34px;min-height:34px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+body[data-project="rd"] .manufacturing-card::after{display:none}
+body[data-project="rd"] .rd-card-count{display:grid;gap:3px;margin:12px 0 9px}
+body[data-project="rd"] .rd-card-count>span{font-size:10px;color:#91adb5}
+body[data-project="rd"] .rd-card-count strong{font:600 25px/1.2 Consolas,monospace;color:#a1e2ce}
+body[data-project="rd"] .rd-card-count strong small{margin-left:4px;font:11px "Microsoft YaHei",sans-serif;color:#94b4ba}
+body[data-project="rd"] .manufacturing-card[data-metric="reported"] .rd-card-count strong{color:#8ebdf7}
+body[data-project="rd"] .rd-card-stats{display:grid;gap:5px;margin:0}
+body[data-project="rd"] .rd-card-stats>div{display:flex;align-items:baseline;justify-content:space-between;gap:3px;font-size:10px;line-height:1.5}
+body[data-project="rd"] .rd-card-stats dt{color:#7898a1;white-space:nowrap}
+body[data-project="rd"] .rd-card-stats dd{margin:0;color:#d0e2e3;font-variant-numeric:tabular-nums;white-space:nowrap}
+body[data-project="rd"] .rd-card-bar{display:block;height:3px;margin-top:9px;border-radius:2px;background:#173038;overflow:hidden}
+body[data-project="rd"] .rd-card-bar i{display:block;height:100%;background:#5bbda7}
+body[data-project="rd"] .manufacturing-card[data-metric="reported"] .rd-card-bar i{background:#6aa8ed}
+body[data-project="rd"] .rd-route-breakdown{display:grid;gap:7px;margin:12px 0 18px}
+body[data-project="rd"] .rd-route-breakdown>p{margin:0 0 2px;color:#9ebbc2;font-size:12px}
+body[data-project="rd"] .rd-route-breakdown button{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:10px 12px;border:1px solid #2b4f59;border-radius:5px;background:#102931;color:#cfe4e4;text-align:left;font-size:12px;line-height:1.7}
+body[data-project="rd"] .rd-route-breakdown button>span{display:grid}
+body[data-project="rd"] .rd-route-breakdown small{color:#8aaab4}
+body[data-project="rd"] .rd-route-breakdown em{font-style:normal;color:#8cdbcb;white-space:nowrap}
+@media(max-width:600px){body[data-project="rd"] .rd-progress-switch{width:100%}body[data-project="rd"] .rd-progress-switch button{flex:1}body[data-project="rd"] .rd-route-breakdown button{padding:9px}}

@@ -14,3 +14,26 @@
 .layout-vertical .node-top{line-height:18px}
 @media(max-width:850px){.route-filters{gap:12px;padding:12px}.route-picker{flex:1 1 250px}.workshop-search{flex:1 1 200px}.route-scope-summary{flex:1 1 auto}.route-filters label{font-size:11px}}
 @media(max-width:520px){.route-filters{padding:12px 10px;gap:10px}.route-picker,.workshop-search{flex-basis:100%}.route-filters label>span{min-width:48px}.route-scope-summary{justify-content:flex-start;flex-basis:100%;margin-left:58px}.route-scope-summary .scope-match{flex-basis:auto;text-align:left;margin-left:8px}.route-scope-summary strong{font-size:22px}.node .node-top>span:first-child{font-size:13px}}
+
+/* A single RD control strip, wrapping only when the viewport needs it. */
+.route-tools{display:flex;align-items:center;flex-wrap:wrap;gap:8px 10px;padding:10px 12px;border-bottom:1px solid #21424b;background:#0a2028}
+.route-tools .route-filters,.route-tools .toolbar{display:contents}
+.route-tools .route-picker{order:0;flex:1 1 225px;max-width:250px}
+.route-tools .workshop-search{order:1;flex:1 1 170px;max-width:195px}
+.route-tools .route-filters label{gap:7px;font-size:11px}
+.route-tools .route-picker select,.route-tools .workshop-search input{height:34px;font-size:12px;padding-top:6px;padding-bottom:6px}
+.route-tools .phase-nav{order:2;margin:0;flex-shrink:0}
+.route-tools .phase-nav button{padding:8px 9px;font-size:11px}
+.route-tools .search{order:3;flex:1 1 90px;min-width:80px;max-width:130px;margin:0;width:auto}
+.route-tools .search kbd{display:none}
+.route-tools #expandAll{order:4}.route-tools #collapseAll{order:5}
+.route-tools .toolbar>button{padding:7px 8px;font-size:10px}
+.route-tools .layout-control{order:6;gap:5px}.route-tools .layout-control select{padding:6px 5px}
+.route-tools .route-scope-summary{order:7;flex:0 0 auto;margin:0 0 0 auto;gap:3px 5px;font-size:10px}
+.route-tools .route-scope-summary strong{font-size:21px}.route-tools .route-scope-summary small{font-size:10px}
+.layout-horizontal .branch-group:not(.is-open) .group-header{padding:7px 10px}
+.layout-horizontal .branch-group.is-open .group-header{height:44px;padding:6px 10px}
+.layout-horizontal .group-cards{padding-top:3px}
+.embedded-route.layout-vertical .viewport{height:480px;min-height:360px}
+@media(max-width:1100px){.route-tools .route-picker{flex-basis:220px}.route-tools .workshop-search{flex-basis:160px}.route-tools .search{max-width:none}}
+@media(max-width:520px){.route-tools{gap:8px;padding:10px}.route-tools .route-picker,.route-tools .workshop-search{flex:1 1 100%;max-width:none}.route-tools .route-filters label>span{min-width:48px}.route-tools .phase-nav{margin-right:auto}.route-tools .search{flex:1 1 90px;max-width:150px}.route-tools .route-scope-summary{margin-left:auto}.route-tools .route-scope-summary .scope-match{margin-left:0;text-align:right}}

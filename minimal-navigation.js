@@ -53,5 +53,16 @@
   qualityTabs?.classList.add('minimal-subtabs');
 
   const current = primary.querySelector('[data-view].active')?.dataset.view || 'production';
+  function syncProjectTitles() {
+    const rd = document.querySelector('#projectSelect')?.value === 'rd';
+    primary.querySelectorAll('[data-view]').forEach(button => {
+      const key=button.dataset.view,item=views[key];if(!item)return;
+      const title=rd ? key==='production' ? '模块箱体进度看板' : '模块箱体质检看板' : item.title;
+      button.querySelector('strong').textContent=title;button.setAttribute('aria-label',title);
+      const heading=document.querySelector('.view-pane[data-view="'+key+'"] > .section-head h2');if(heading)heading.textContent=title;
+    });
+  }
+  document.querySelector('#projectSelect')?.addEventListener('change',syncProjectTitles);
+  syncProjectTitles();
   syncPrimary(current);
 })();

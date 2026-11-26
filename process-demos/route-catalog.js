@@ -62,6 +62,30 @@
     const route = getRoute(id) || standard;
     return [...new Set(route.nodes.flatMap(node => node.boundBoxes.map(box => workshopFor(route,node,box))))].sort((a,b) => a.localeCompare(b,'zh-CN'));
   }
-  window.QMS_ROUTE_CATALOG = {routes,getRoute,scope,workshops,workshopFor,projectTotal:source.totalBoxes+sample.totalBoxes,
+  let aggregateCache;
+  function aggregate() {
+    if (aggregateCache) return aggregateCache;
+    const ids=[...new Set(routes.flatMap(route=>route.nodes.map(node=>node.id)))];
+    const nodes=ids.map(id=>{
+      const entries=routes.map(route=>({route,node:route.nodes.find(node=>node.id===id)})).filter(entry=>entry.node);
+      const boundBoxes=[...new Set(entries.flatMap(entry=>entry.node.boundBoxes))],records=new Map();
+      for(const {route,node} of entries)for(const record of node.records){
+        const candidate={...record,routeId:route.id,routeName:route.name,workshop:workshopFor(route,node,record.box)};
+        const previous=records.get(record.box),score=item=>item?.acceptedAt?2:item?.reportedAt?1:0;
+        if(!previous||score(candidate)>score(previous))records.set(record.box,candidate);
+      }
+      const totalBound=boundBoxes.length+entries.reduce((sum,{node,route})=>sum+Math.max(0,(node.totalBound ?? route.totalBoxes)-node.boundBoxes.length),0);
+      const combined=[...records.values()];
+      return {...entries[0].node,routeId:'all',boundBoxes,totalBound,records:combined,
+        reported:combined.filter(record=>record.reportedAt).length,accepted:combined.filter(record=>record.acceptedAt).length,
+        routeStats:entries.map(({route,node})=>({id:route.id,name:route.name,totalBoxes:node.totalBound ?? route.totalBoxes,reported:node.reported,accepted:node.accepted}))};
+    });
+    const totalBoxes=source.totalBoxes+sample.totalBoxes;
+    aggregateCache={...source,id:'all',routeId:'all',name:'全部工艺路线',unit:'箱',totalBoxes,routeTotalBoxes:totalBoxes,nodes,
+      boxes:[...new Set(routes.flatMap(route=>route.boxes))],boxOrder:[...new Set(routes.flatMap(route=>route.boxOrder))],
+      progressSource:{...source.progressSource,firstRecordDate:routes.map(route=>route.progressSource.firstRecordDate).sort()[0],snapshotDate:routes.map(route=>route.progressSource.snapshotDate).sort().at(-1)}};
+    return aggregateCache;
+  }
+  window.QMS_ROUTE_CATALOG = {routes,getRoute,scope,workshops,workshopFor,aggregate,projectTotal:source.totalBoxes+sample.totalBoxes,
     completedBoxes:routes.reduce((sum,route) => sum+(route.nodes.find(node => node.id === route.mainSequence.at(-1))?.accepted || 0),0)};
 })();

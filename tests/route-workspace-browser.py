@@ -29,7 +29,7 @@ with sync_playwright() as p:
     assert response.status==200,response.status
     frame=page.frame_locator('#processRouteFrame')
     expect(frame.locator('#routeSelect')).to_have_value('RD-R01')
-    assert page.locator('#viewTabs strong').all_text_contents()==['进度看板','质检看板']
+    assert page.locator('#viewTabs strong').all_text_contents()==['模块箱体进度看板','模块箱体质检看板']
     assert page.locator('#productionTabs button').all_text_contents()==['制造进度图','工序验收进度表','当前箱体分布图']
     expect(frame.locator('#routeScopeSummary strong')).to_have_text('156')
     expect(frame.locator('[data-node="ST-01"]')).to_have_attribute('data-reported','121')
@@ -46,7 +46,7 @@ with sync_playwright() as p:
     expect(frame.locator('#routeScopeSummary strong')).to_have_text('3')
     expect(frame.locator('[data-node="ST-01"]')).to_have_attribute('data-reported','3')
     expect(frame.locator('[data-node="ST-01"]')).to_have_attribute('data-accepted','3')
-    expect(page.locator('#manufacturingTimestamp')).to_contain_text('样箱')
+    expect(page.locator('#manufacturingTimestamp')).to_contain_text('全部工艺路线')
     assert parse_qs(urlsplit(page.url).query)['route']==['RD-R02']
     frame.locator('[data-node="ST-01"]').press('Enter')
     expect(page.locator('#drawer')).to_have_css('transform','none')
@@ -68,7 +68,7 @@ with sync_playwright() as p:
     frame=page.frame_locator('#processRouteFrame')
     expect(frame.locator('#routeSelect')).to_have_value('RD-R02')
     expect(frame.locator('#workshopSearch')).to_have_value('结构二车间')
-    expect(page.locator('#manufacturingTimestamp')).to_contain_text('样箱')
+    expect(page.locator('#manufacturingTimestamp')).to_contain_text('全部工艺路线')
     frame.locator('[data-node="ST-01"]').press('Enter')
     expect(page.locator('[data-box-count]')).to_have_text('1')
     assert page.locator('.pbd-table tbody th').all_text_contents()==['YX-002']
@@ -96,8 +96,8 @@ with sync_playwright() as p:
     frame.locator('#routeSelect').select_option('RD-R01')
     expect(frame.locator('[data-node="ST-01"]')).to_have_attribute('data-accepted','121')
     page.locator('#productionTabs button[data-production-view="manufacturing"]').click()
-    expect(page.locator('#manufacturingTimestamp')).to_contain_text('标准工艺路线')
-    expect(page.locator('[data-rd-process="ST-01"]')).to_contain_text('121 箱')
+    expect(page.locator('#manufacturingTimestamp')).to_contain_text('全部工艺路线')
+    expect(page.locator('[data-rd-process="ST-01"]')).to_have_attribute('data-completed','124')
     checks.append('search, branch expansion without overlaps and acceptance-view route context')
 
     for width in [623,390,320]:

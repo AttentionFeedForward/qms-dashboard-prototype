@@ -28,14 +28,14 @@ function matches(n){
 function related(g){const n=get(state.selected);return !!n&&!!g&&(n.groupId===g.id||n.id===g.source||n.id===g.target);}
 function measure(g,horizontal){
  const count=g.members.length;
- if(!state.open.has(g.id))return {width:horizontal?174:cardWidth+26,height:horizontal?76:62};
- return horizontal?{width:30+count*cardWidth+(count-1)*14,height:cardHeight+72}:{width:cardWidth+26,height:60+count*cardHeight+(count-1)*10};
+ if(!state.open.has(g.id))return {width:horizontal?174:cardWidth+26,height:horizontal?60:62};
+ return horizontal?{width:30+count*cardWidth+(count-1)*14,height:cardHeight+64}:{width:cardWidth+26,height:60+count*cardHeight+(count-1)*10};
 }
 function layout(){
  const available=$('#viewport').clientWidth,horizontal=state.mode==='auto'?innerWidth>=800:state.mode==='horizontal';
  state.orientation=horizontal?'horizontal':'vertical';
  cardWidth=horizontal?160:Math.max(96,Math.min(160,Math.floor((available-72)/2)));
- cardHeight=horizontal?132:cardWidth<132?116:110;
+ cardHeight=horizontal?128:cardWidth<132?116:110;
  const step=horizontal?cardWidth+44:cardHeight+32,start=horizontal?28:52;
  const sizes=new Map(groups.map(g=>[g.id,measure(g,horizontal)]));
  const lanes=horizontal?['ST','AR'].map(phase=>mains.filter(n=>n.phase===phase)).filter(lane=>lane.length):[mains];
@@ -50,17 +50,17 @@ function layout(){
    const span=axis[t]-axis[s]-(horizontal?cardWidth:cardHeight),delta=Math.max(0,extent+32-span);
    if(delta)lane.forEach((_,i)=>{if(i>=t)axis[i]+=delta;});
   }
-  lane.forEach((n,i)=>positions.set(n.id,horizontal?{x:axis[i],y:laneTop+64}:{x:12,y:axis[i]}));
+  lane.forEach((n,i)=>positions.set(n.id,horizontal?{x:axis[i],y:laneTop+48}:{x:12,y:axis[i]}));
   for(const g of laneGroups){
    const size=sizes.get(g.id),a=positions.get(g.source),b=positions.get(g.target);
    const from=(horizontal?a.x:a.y)+(horizontal?cardWidth:cardHeight),to=horizontal?b.x:b.y;
-   const frame=horizontal?{x:(from+to-size.width)/2,y:laneTop+64+cardHeight+40,...size}:{x:12+cardWidth+22,y:(from+to-size.height)/2,...size};
+   const frame=horizontal?{x:(from+to-size.width)/2,y:laneTop+48+cardHeight+20,...size}:{x:12+cardWidth+22,y:(from+to-size.height)/2,...size};
    frames.set(g.id,frame);
-   if(state.open.has(g.id))g.members.forEach((id,i)=>positions.set(id,horizontal?{x:frame.x+15+i*(cardWidth+14),y:frame.y+57}:{x:frame.x+13,y:frame.y+45+i*(cardHeight+10)}));
+   if(state.open.has(g.id))g.members.forEach((id,i)=>positions.set(id,horizontal?{x:frame.x+15+i*(cardWidth+14),y:frame.y+48}:{x:frame.x+13,y:frame.y+45+i*(cardHeight+10)}));
   }
   if(horizontal){
    maxWidth=Math.max(maxWidth,axis.at(-1)+cardWidth+60);
-   laneTop=Math.max(laneTop+64+cardHeight,...laneGroups.map(g=>{const f=frames.get(g.id);return f.y+f.height;}))+40;
+   laneTop=Math.max(laneTop+48+cardHeight,...laneGroups.map(g=>{const f=frames.get(g.id);return f.y+f.height;}))+20;
   }else{
    graphWidth=2*cardWidth+72;
    graphHeight=Math.max(axis.at(-1)+cardHeight,...[...frames.values()].map(f=>f.y+f.height))+70;
@@ -84,10 +84,8 @@ function connections(){
  const h=state.orientation==='horizontal',paths=[];
  mains.slice(1).forEach((n,i)=>{
   const previous=mains[i],a=positions.get(previous.id),b=positions.get(n.id);let d;
-  if(h&&previous.phase!==n.phase){
-   const bend=b.y-84;
-   d='M '+(a.x+cardWidth)+' '+(a.y+cardHeight/2)+' H '+(a.x+cardWidth+20)+' V '+bend+' H 12 V '+(b.y+cardHeight/2)+' H '+b.x;
-  }else d=h?'M '+(a.x+cardWidth)+' '+(a.y+cardHeight/2)+' H '+b.x:'M '+(a.x+cardWidth/2)+' '+(a.y+cardHeight)+' V '+b.y;
+  if(previous.phase!==n.phase)return;
+  d=h?'M '+(a.x+cardWidth)+' '+(a.y+cardHeight/2)+' H '+b.x:'M '+(a.x+cardWidth/2)+' '+(a.y+cardHeight)+' V '+b.y;
   paths.push(pathHTML(previous.id,n.id,false,d));
  });
  for(const g of groups){
@@ -195,7 +193,7 @@ function workshopOptions(){
 }
 function changeScope(routeId,workshop=''){
  state.routeId=routeId;state.workshop=workshop;state.selected=null;state.query='';state.open.clear();$('#search').value='';message('');
- refreshData();$('#viewport').scrollTo(0,0);render();
+ refreshData();$('#viewport').scrollTo({left:0,top:0,behavior:'instant'});render();
  const url=new URL(location.href);url.searchParams.set('route',state.routeId);
  if(state.workshop)url.searchParams.set('workshop',state.workshop);else url.searchParams.delete('workshop');
  history.replaceState(null,'',url);
@@ -262,4 +260,5 @@ addEventListener('message',event=>{
  if(event.data?.type==='qms-route-focus')$('[data-node="'+state.selected+'"]')?.focus({preventScroll:true});
 });
 render();
+const requestedNode=params.get('node');if(requestedNode&&get(requestedNode))locate(requestedNode);
 })();

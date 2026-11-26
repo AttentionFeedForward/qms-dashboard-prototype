@@ -38,7 +38,7 @@ with sync_playwright() as p:
     phase=frame.locator('#graph').evaluate('''root=>Object.fromEntries([...root.querySelectorAll('[data-phase-label]')].map(e=>[e.dataset.phaseLabel,e.offsetTop]))''')
     assert phase['AR']>phase['ST']+250,phase
     no_node_overlap(frame)
-    frame.locator('.route-filters').scroll_into_view_if_needed()
+    frame.locator('.route-tools').scroll_into_view_if_needed()
     page.screenshot(path=str(delivery/'nov26-two-row-verified.png'),full_page=True)
     checks.append('navigation, original counts, larger codes and separate phase rows')
 
@@ -106,7 +106,13 @@ with sync_playwright() as p:
         frame=page.frame_locator('#processRouteFrame')
         expect(frame.locator('#routeSelect')).to_have_value('RD-R02')
         expect(frame.locator('body')).to_have_attribute('data-orientation','vertical')
+        columns=frame.locator('#graph').evaluate('''root=>Object.fromEntries([...root.querySelectorAll('[data-phase-label]')].map(e=>[e.dataset.phaseLabel,{x:e.offsetLeft,y:e.offsetTop}]))''')
+        assert columns['AR']['x']>columns['ST']['x'] and abs(columns['AR']['y']-columns['ST']['y'])<1,columns
+        assert frame.locator('#search').get_attribute('list')=='processOptions'
         assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+1')
+        if width==390:
+            frame.locator('#viewport').scroll_into_view_if_needed()
+            page.screenshot(path=str(delivery/'rd-mobile-two-columns.png'))
         frame.locator('[data-node="ST-01"]').press('Enter')
         expect(page.locator('#drawer')).to_have_css('transform','none')
         metrics=page.locator('#drawer').evaluate('''drawer=>{const table=drawer.querySelector('.pbd-table-wrap');return {width:drawer.getBoundingClientRect().width,scroll:drawer.scrollWidth,client:drawer.clientWidth,tableScroll:table.scrollWidth,tableClient:table.clientWidth}}''')

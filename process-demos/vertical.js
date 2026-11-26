@@ -11,7 +11,7 @@ const state={mode:['horizontal','vertical'].includes(query)?query:'auto',orienta
  routeId:catalog?.getRoute(params.get('route'))?.id || 'RD-R01',workshop:params.get('workshop') || '',phase:'ST'};
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 let data,nodes,groups,mains,nodeMap,groupMap;
-let positions=new Map(),frames=new Map(),cardWidth=160,cardHeight=132,graphWidth=0,graphHeight=0,lastFocus=null;
+let positions=new Map(),frames=new Map(),laneBounds=new Map(),columnWidth=0,cardWidth=160,cardHeight=132,graphWidth=0,graphHeight=0,lastFocus=null;
 const get=id=>nodeMap.get(id),phaseName=p=>p==='ST'?'结构制造':'装修施工';
 const quantity=v=>Number.isInteger(v)?v:'—';
 function refreshData(){
@@ -34,39 +34,48 @@ function measure(g,horizontal){
 function layout(){
  const available=$('#viewport').clientWidth,horizontal=state.mode==='auto'?innerWidth>=800:state.mode==='horizontal';
  state.orientation=horizontal?'horizontal':'vertical';
- cardWidth=horizontal?160:Math.max(96,Math.min(160,Math.floor((available-72)/2)));
+ const lanes=['ST','AR'].map(phase=>mains.filter(n=>n.phase===phase)).filter(lane=>lane.length);
+ cardWidth=horizontal?160:Math.max(88,Math.min(160,Math.floor((available-12-8*(lanes.length-1))/lanes.length)-36));
  cardHeight=horizontal?128:cardWidth<132?116:110;
- const step=horizontal?cardWidth+44:cardHeight+32,start=horizontal?28:52;
- const sizes=new Map(groups.map(g=>[g.id,measure(g,horizontal)]));
- const lanes=horizontal?['ST','AR'].map(phase=>mains.filter(n=>n.phase===phase)).filter(lane=>lane.length):[mains];
- positions=new Map();frames=new Map();
+ columnWidth=cardWidth+36;positions=new Map();frames=new Map();laneBounds=new Map();
+ if(!horizontal){
+  let bottom=0;
+  lanes.forEach((lane,laneIndex)=>{
+   const left=6+laneIndex*(columnWidth+8);let cursor=52;
+   laneBounds.set(lane[0].phase,{x:left,width:columnWidth});
+   for(const node of lane){
+    for(const group of groups.filter(group=>group.target===node.id)){
+     const frame={x:left+8,y:cursor,width:cardWidth+20,height:measure(group,false).height,phase:node.phase};
+     frames.set(group.id,frame);
+     if(state.open.has(group.id))group.members.forEach((id,index)=>positions.set(id,{x:frame.x+9,y:frame.y+45+index*(cardHeight+10)}));
+     cursor+=frame.height+24;
+    }
+    positions.set(node.id,{x:left+18,y:cursor});cursor+=cardHeight+28;
+   }
+   bottom=Math.max(bottom,cursor+14);
+  });
+  graphWidth=lanes.length*columnWidth+(lanes.length-1)*8+12;graphHeight=bottom;return;
+ }
+ const sizes=new Map(groups.map(group=>[group.id,measure(group,true)]));
  let laneTop=0,maxWidth=0;
  for(const lane of lanes){
-  const axis=lane.map((n,i)=>start+i*step+(!horizontal&&n.phase==='AR'?72:0));
-  const index=new Map(lane.map((n,i)=>[n.id,i]));
-  const laneGroups=groups.filter(g=>index.has(g.source)&&index.has(g.target));
-  for(const g of laneGroups){
-   const s=index.get(g.source),t=index.get(g.target),extent=horizontal?sizes.get(g.id).width:sizes.get(g.id).height;
-   const span=axis[t]-axis[s]-(horizontal?cardWidth:cardHeight),delta=Math.max(0,extent+32-span);
-   if(delta)lane.forEach((_,i)=>{if(i>=t)axis[i]+=delta;});
+  const axis=lane.map((_,index)=>28+index*(cardWidth+44)),index=new Map(lane.map((node,i)=>[node.id,i]));
+  const laneGroups=groups.filter(group=>index.has(group.source)&&index.has(group.target));
+  for(const group of laneGroups){
+   const from=index.get(group.source),to=index.get(group.target),span=axis[to]-axis[from]-cardWidth,delta=Math.max(0,sizes.get(group.id).width+32-span);
+   if(delta)lane.forEach((_,i)=>{if(i>=to)axis[i]+=delta;});
   }
-  lane.forEach((n,i)=>positions.set(n.id,horizontal?{x:axis[i],y:laneTop+48}:{x:12,y:axis[i]}));
-  for(const g of laneGroups){
-   const size=sizes.get(g.id),a=positions.get(g.source),b=positions.get(g.target);
-   const from=(horizontal?a.x:a.y)+(horizontal?cardWidth:cardHeight),to=horizontal?b.x:b.y;
-   const frame=horizontal?{x:(from+to-size.width)/2,y:laneTop+48+cardHeight+20,...size}:{x:12+cardWidth+22,y:(from+to-size.height)/2,...size};
-   frames.set(g.id,frame);
-   if(state.open.has(g.id))g.members.forEach((id,i)=>positions.set(id,horizontal?{x:frame.x+15+i*(cardWidth+14),y:frame.y+48}:{x:frame.x+13,y:frame.y+45+i*(cardHeight+10)}));
+  lane.forEach((node,i)=>positions.set(node.id,{x:axis[i],y:laneTop+48}));
+  for(const group of laneGroups){
+   const size=sizes.get(group.id),a=positions.get(group.source),b=positions.get(group.target);
+   const frame={x:(a.x+cardWidth+b.x-size.width)/2,y:laneTop+48+cardHeight+20,...size,phase:lane[0].phase};
+   frames.set(group.id,frame);
+   if(state.open.has(group.id))group.members.forEach((id,i)=>positions.set(id,{x:frame.x+15+i*(cardWidth+14),y:frame.y+48}));
   }
-  if(horizontal){
-   maxWidth=Math.max(maxWidth,axis.at(-1)+cardWidth+60);
-   laneTop=Math.max(laneTop+48+cardHeight,...laneGroups.map(g=>{const f=frames.get(g.id);return f.y+f.height;}))+20;
-  }else{
-   graphWidth=2*cardWidth+72;
-   graphHeight=Math.max(axis.at(-1)+cardHeight,...[...frames.values()].map(f=>f.y+f.height))+70;
-  }
+  maxWidth=Math.max(maxWidth,axis.at(-1)+cardWidth+60);
+  laneTop=Math.max(laneTop+48+cardHeight,...laneGroups.map(group=>{const frame=frames.get(group.id);return frame.y+frame.height;}))+20;
  }
- if(horizontal){graphWidth=maxWidth;graphHeight=laneTop;}
+ graphWidth=maxWidth;graphHeight=laneTop;
 }
 function nodeHTML(n,inside=false){
  const p=positions.get(n.id),position=inside?'':'left:'+p.x+'px;top:'+p.y+'px;',hit=matches(n);
@@ -85,7 +94,12 @@ function connections(){
  mains.slice(1).forEach((n,i)=>{
   const previous=mains[i],a=positions.get(previous.id),b=positions.get(n.id);let d;
   if(previous.phase!==n.phase)return;
-  d=h?'M '+(a.x+cardWidth)+' '+(a.y+cardHeight/2)+' H '+b.x:'M '+(a.x+cardWidth/2)+' '+(a.y+cardHeight)+' V '+b.y;
+  if(h)d='M '+(a.x+cardWidth)+' '+(a.y+cardHeight/2)+' H '+b.x;
+  else{
+   const center=a.x+cardWidth/2,bottom=a.y+cardHeight,blocked=[...frames.values()].some(frame=>frame.phase===n.phase&&frame.y>=bottom&&frame.y<b.y);
+   const gutter=laneBounds.get(n.phase).x+2;
+   d=blocked?'M '+center+' '+bottom+' V '+(bottom+8)+' H '+gutter+' V '+(b.y-8)+' H '+(b.x+cardWidth/2)+' V '+b.y:'M '+center+' '+bottom+' V '+b.y;
+  }
   paths.push(pathHTML(previous.id,n.id,false,d));
  });
  for(const g of groups){
@@ -95,9 +109,9 @@ function connections(){
    entry='M '+sx+' '+sy+' H '+(sx+12)+' V '+fy+' H '+f.x;
    exit='M '+(f.x+f.width)+' '+fy+' H '+(tx-12)+' V '+ty+' H '+tx;
   }else{
-   const sx=a.x+cardWidth*.78,tx=b.x+cardWidth*.78,sy=a.y+cardHeight,ty=b.y,cx=f.x+f.width/2;
-   entry='M '+sx+' '+sy+' V '+(sy+12)+' H '+cx+' V '+f.y;
-   exit='M '+cx+' '+(f.y+f.height)+' V '+(ty-12)+' H '+tx+' V '+ty;
+   const lane=laneBounds.get(get(g.source).phase),right=lane.x+lane.width-3,left=lane.x+5,fy=f.y+f.height/2;
+   entry='M '+(a.x+cardWidth)+' '+(a.y+cardHeight*.6)+' H '+right+' V '+fy+' H '+(f.x+f.width);
+   exit='M '+f.x+' '+fy+' H '+left+' V '+(b.y-10)+' H '+(b.x+cardWidth/2)+' V '+b.y;
   }
   paths.push(pathHTML(g.source,key,true,entry,g.id),pathHTML(key,g.target,true,exit,g.id));
  }
@@ -110,7 +124,7 @@ function renderScope(){
  const route=catalog?.getRoute(state.routeId) || data;
  $('#boxCount').textContent=route.totalBoxes+' '+(route.unit || '箱');
  $('#routeScopeSummary').innerHTML='<span>路线箱数</span><strong>'+route.totalBoxes+'</strong><small>'+(route.unit || '箱')+'</small>'+(state.workshop?'<span class="scope-match">车间匹配 '+data.totalBoxes+' '+(route.unit || '箱')+'</span>':'');
- $$('.phase-nav button').forEach(button=>{button.hidden=!mains.some(n=>n.phase===button.dataset.phase);});
+
 }
 function render(anchorId=null){
  const vp=$('#viewport'),old={x:vp.scrollLeft,y:vp.scrollTop},oldOrientation=state.orientation,oldAnchor=anchorId&&positions.get(anchorId);
@@ -127,16 +141,16 @@ function render(anchorId=null){
  let html='<svg class="edge-svg" width="'+graphWidth+'" height="'+graphHeight+'" aria-hidden="true"><defs>'+[['arrow-main','#93b1bc'],['arrow-branch','#90b5a5'],['arrow-selected','#75d7c2']].map(([id,color])=>'<marker id="'+id+'" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10z" fill="'+color+'"/></marker>').join('')+'</defs>'+connections()+'</svg>';
  for(const phase of ['ST','AR']){
   const first=mains.find(n=>n.phase===phase);if(!first)continue;
-  const p=positions.get(first.id),x=h?p.x:12+cardWidth+22,y=h?p.y-38:p.y-48;
-  html+='<div class="phase-label" data-phase-label="'+phase+'" style="left:'+x+'px;top:'+y+'px;'+(!h?'width:'+(cardWidth+26)+'px':'')+'"><b>'+(phase==='ST'?'01':'02')+'</b>'+phaseName(phase)+'<small>'+nodes.filter(n=>n.phase===phase).length+' 道</small></div>';
+  const p=positions.get(first.id),x=h?p.x:laneBounds.get(phase).x+8,y=h?p.y-38:p.y-40;
+  html+='<div class="phase-label" data-phase-label="'+phase+'" style="left:'+x+'px;top:'+y+'px;'+(!h?'width:'+(columnWidth-16)+'px':'')+'"><b>'+(phase==='ST'?'01':'02')+'</b>'+phaseName(phase)+'<small>'+nodes.filter(n=>n.phase===phase).length+' 道</small></div>';
  }
  html+=mains.map(n=>nodeHTML(n)).join('')+groups.map(frameHTML).join('');
- const end=positions.get(mains.at(-1).id);
- html+='<span class="route-end" style="left:'+(h?end.x+cardWidth+20:end.x+8)+'px;top:'+(h?end.y+cardHeight/2-7:end.y+cardHeight+30)+'px">'+(h?'终点':'制造路线结束')+'</span>';
+ if(h){const end=positions.get(mains.at(-1).id);html+='<span class="route-end" style="left:'+(end.x+cardWidth+20)+'px;top:'+(end.y+cardHeight/2-7)+'px">终点</span>';}
+ else for(const phase of ['ST','AR']){const last=mains.filter(node=>node.phase===phase).at(-1);if(!last)continue;const end=positions.get(last.id);html+='<span class="route-end" style="left:'+(end.x+3)+'px;top:'+(end.y+cardHeight+16)+'px">'+phaseName(phase)+'结束</span>';}
  $('#graph').style.width=graphWidth+'px';$('#graph').style.height=graphHeight+'px';$('#graph').innerHTML=html;
  vp.style.height=embedded&&h?Math.min(1200,graphHeight)+'px':'';
- $('#orientationLabel').textContent=h?'分阶段两排':'手机竖排';
- $('#readingHint').textContent=h?'→ 结构在上，装修在下；点击支线框展开':'↓ 沿工艺顺序阅读，点击支线框展开';
+ $('#orientationLabel').textContent=h?'分阶段两排':'分阶段两列';
+ $('#readingHint').textContent=h?'→ 结构在上，装修在下；点击支线框展开':laneBounds.size===2?'↓ 左侧结构、右侧装修；点击支线框展开':'↓ 沿工艺顺序阅读，点击支线框展开';
  $('#routeCount').textContent=nodes.length+' 道工序 · '+mains.length+' 道主线';
  $('#collapseAll').disabled=state.open.size===0;$('#expandAll').disabled=state.open.size===groups.length;
  $('#layoutMode').value=state.mode;$('#scrollHint').textContent=h?'横向滚动':'向下滚动';
@@ -152,9 +166,7 @@ function renderOverview(){
  $('#overviewSvg').innerHTML='<path d="M0 8 H1000 M0 20 H1000" stroke="#2c4f58"/>'+mains.map(n=>'<rect x="'+((h?positions.get(n.id).x:positions.get(n.id).y)/length*1000)+'" y="'+(n.phase==='ST'?4:16)+'" width="'+Math.max(2,(h?cardWidth:cardHeight)/length*1000)+'" height="8" rx="1" fill="'+(n.phase==='ST'?'#5a9e92':'#7593b1')+'"/>').join('');
 }
 function updateNavigation(){
- const vp=$('#viewport'),h=state.orientation==='horizontal',p=positions.get('AR-01');
- const phase=h?state.phase:p&&vp.scrollTop+vp.clientHeight*.25>=p.y?'AR':mains[0]?.phase || 'ST';
- $$('.phase-nav button').forEach(button=>{const active=button.dataset.phase===phase;button.classList.toggle('active',active);button.setAttribute('aria-current',String(active));});
+ const vp=$('#viewport'),h=state.orientation==='horizontal';
  const length=Math.max(1,h?graphWidth:graphHeight),ratio=(h?vp.clientWidth:vp.clientHeight)/length,left=(h?vp.scrollLeft:vp.scrollTop)/length;
  $('#overviewWindow').style.width=Math.min(100,ratio*100)+'%';$('#overviewWindow').style.left=left*100+'%';
  $('#overview').setAttribute('aria-valuenow',String(Math.round(100*(h?vp.scrollLeft:vp.scrollTop)/Math.max(1,h?vp.scrollWidth-vp.clientWidth:vp.scrollHeight-vp.clientHeight))));
@@ -168,7 +180,7 @@ function moveTo(id,behavior=reduced?'instant':'smooth'){
  const p=positions.get(id);if(!p)return;
  const vp=$('#viewport'),h=state.orientation==='horizontal';
  state.phase=get(id).phase;
- vp.scrollTo({left:h?Math.max(0,p.x-35):0,top:h?Math.max(0,p.y-64):Math.max(0,p.y-55),behavior});updateNavigation();
+ vp.scrollTo({left:h?Math.max(0,p.x-35):Math.max(0,p.x+cardWidth-vp.clientWidth+14),top:h?Math.max(0,p.y-64):Math.max(0,p.y-55),behavior});updateNavigation();
 }
 function locate(id,openDrawerToo=false){
  const n=get(id);if(!n)return;if(n.groupId)state.open.add(n.groupId);
@@ -182,7 +194,7 @@ function visibleAnchor(){
 }
 function openDrawer(id){
  const n=get(id);if(!n)return;const wasOpen=$('#drawer').open;if(!wasOpen)lastFocus=document.activeElement;
- state.selected=id;if(n.groupId)state.open.add(n.groupId);render();
+ state.selected=id;state.phase=n.phase;if(n.groupId)state.open.add(n.groupId);render();
  if(embedded){parent.postMessage({type:'qms-route-select',id,routeId:state.routeId,workshop:state.workshop},location.origin);return;}
  $('#drawerTitle').textContent='工序详情 · '+n.id+' '+n.name;
  window.QMS_ROUTE_DETAIL.mount($('#drawerBody'),n,data);
@@ -191,9 +203,10 @@ function openDrawer(id){
 function workshopOptions(){
  $('#workshopOptions').innerHTML=(catalog?.workshops(state.routeId) || []).map(name=>'<option value="'+esc(name)+'"></option>').join('');
 }
+function processOptions(){ $('#processOptions').innerHTML=nodes.map(node=>'<option value="'+esc(node.id)+'" label="'+esc(node.name)+'"></option>').join(''); }
 function changeScope(routeId,workshop=''){
  state.routeId=routeId;state.workshop=workshop;state.selected=null;state.query='';state.open.clear();$('#search').value='';message('');
- refreshData();$('#viewport').scrollTo({left:0,top:0,behavior:'instant'});render();
+ refreshData();processOptions();$('#viewport').scrollTo({left:0,top:0,behavior:'instant'});render();
  const url=new URL(location.href);url.searchParams.set('route',state.routeId);
  if(state.workshop)url.searchParams.set('workshop',state.workshop);else url.searchParams.delete('workshop');
  history.replaceState(null,'',url);
@@ -203,7 +216,6 @@ document.addEventListener('click',event=>{
  if(event.target.closest('[data-clear-workshop]')){$('#workshopSearch').value='';changeScope(state.routeId,'');return;}
  const toggle=event.target.closest('[data-toggle-group]');if(toggle){toggleGroup(toggle.dataset.toggleGroup);return;}
  const node=event.target.closest('[data-node]');if(node){openDrawer(node.dataset.node);return;}
- const phase=event.target.closest('[data-phase]');if(phase)moveTo(phase.dataset.phase==='ST'?'ST-01':'AR-01');
 });
 $('#collapseAll').addEventListener('click',()=>{const anchor=visibleAnchor();state.open.clear();if(get(state.selected)?.groupId)state.selected=null;render(anchor);});
 $('#expandAll').addEventListener('click',()=>{const anchor=visibleAnchor();groups.forEach(g=>state.open.add(g.id));render(anchor);});
@@ -218,7 +230,7 @@ $('#search').addEventListener('input',()=>{
 });
 $('#search').addEventListener('keydown',event=>{if(event.key==='Enter'){const n=nodes.find(matches);if(n){locate(n.id);message('已定位 '+n.id+' · '+n.name);notifyHeight();}}});
 $('#routeSelect').innerHTML=(catalog?.routes || [data]).map(route=>'<option value="'+route.id+'">'+esc(route.name)+' · '+route.totalBoxes+' '+(route.unit || '箱')+'</option>').join('');
-$('#routeSelect').value=state.routeId;$('#workshopSearch').value=state.workshop;workshopOptions();
+$('#routeSelect').value=state.routeId;$('#workshopSearch').value=state.workshop;workshopOptions();processOptions();
 $('#routeSelect').addEventListener('change',event=>{$('#workshopSearch').value='';changeScope(event.target.value);workshopOptions();});
 let workshopTimer;
 $('#workshopSearch').addEventListener('input',()=>{clearTimeout(workshopTimer);workshopTimer=setTimeout(()=>changeScope(state.routeId,$('#workshopSearch').value.trim()),120);});

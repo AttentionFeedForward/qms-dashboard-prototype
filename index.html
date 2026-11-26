@@ -20,29 +20,29 @@
   </header>
   <main>
     <section class="summary-row" id="summaryRow"></section>
-    <nav class="view-tabs primary-tabs" id="viewTabs"><button class="active" data-view="production">模块箱体生产进度看板</button><button data-view="quality">模块箱体质检看板</button></nav>
+    <nav class="view-tabs primary-tabs" id="viewTabs"><button class="active" data-view="production">进度看板</button><button data-view="quality">质检看板</button></nav>
 
     <section class="view-pane active" data-view="production">
-      <div class="section-head"><div><p class="eyebrow">01 / PRODUCTION PROGRESS</p><h2>模块箱体生产进度看板</h2><p>查看制造阶段累计完成进度与当前箱体节点分布。</p></div></div>
+      <div class="section-head"><div><p class="eyebrow">01 / PRODUCTION PROGRESS</p><h2>进度看板</h2><p>查看制造阶段累计完成进度与当前箱体节点分布。</p></div></div>
       <div class="production-stack">
         <section class="dashboard-panel manufacturing-panel">
-          <div class="panel-heading"><div><span class="panel-index">01</span><div><h3>箱体制造进度图</h3><p>仅展示结构制造与装修施工工序累计完成情况</p></div></div><span class="data-timestamp" id="manufacturingTimestamp"></span></div>
+          <div class="panel-heading"><div><span class="panel-index">02</span><div><h3>工序验收进度表</h3><p>仅展示结构制造与装修施工工序累计完成情况</p></div></div><span class="data-timestamp" id="manufacturingTimestamp"></span></div>
           <div id="manufacturingProgress" class="manufacturing-progress"></div>
         </section>
         <section class="dashboard-panel distribution-panel">
-          <div class="panel-heading"><div><span class="panel-index">02</span><div><h3>当前箱体分布图</h3><p>展示当前停留在各工序及后续节点的箱体数量</p></div></div><span class="data-timestamp" id="distributionTimestamp"></span></div>
+          <div class="panel-heading"><div><span class="panel-index">03</span><div><h3>当前箱体分布图</h3><p>展示当前停留在各工序及后续节点的箱体数量</p></div></div><span class="data-timestamp" id="distributionTimestamp"></span></div>
           <div class="distribution" id="distribution"></div>
         </section>
         <section class="dashboard-panel process-route-panel">
-          <div class="panel-heading"><div><span class="panel-index">03</span><div><h3>工艺路线图</h3></div></div></div>
+          <div class="panel-heading"><div><span class="panel-index">01</span><div><h3>制造进度图</h3></div></div></div>
           <div id="routeUnavailable" class="rd-empty-state"><strong>当前项目暂无工艺路线数据</strong>可切换至 RD-Rockdale 项目查看</div>
-          <iframe id="processRouteFrame" title="工艺路线图" hidden></iframe>
+          <iframe id="processRouteFrame" title="制造进度图" hidden></iframe>
         </section>
       </div>
     </section>
 
     <section class="view-pane" data-view="quality">
-      <div class="section-head quality-head"><div><p class="eyebrow">02 / QUALITY INSPECTION</p><h2>模块箱体质检看板</h2><p>从工序、车间、班组和工人四个维度查看质检表现。</p></div></div>
+      <div class="section-head quality-head"><div><p class="eyebrow">02 / QUALITY INSPECTION</p><h2>质检看板</h2><p>从工序、车间、班组和工人四个维度查看质检表现。</p></div></div>
       <nav class="quality-tabs" id="qualityTabs"><button class="active" data-quality-view="process">工序质检数据图</button><button data-quality-view="workshop">车间质检数据图</button><button data-quality-view="team">班组质检数据图</button><button data-quality-view="worker">工人质检数据图</button></nav>
 
       <div class="quality-pane active" data-quality-view="process">
@@ -71,6 +71,7 @@
 <script src="process-demos/process-box-details.js"></script>
 <script src="process-demos/box-export.js"></script>
 <script src="process-demos/process-box-integration.js"></script>
+<script src="process-demos/route-catalog.js"></script>
 <script src="rd-dashboard.js"></script>
 <script src="app.js"></script>
 <script src="p05-workshop-integration.js"></script>

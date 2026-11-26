@@ -8,9 +8,9 @@
   if (panels.length < 2) return;
 
   const definitions = [
-    { key: 'manufacturing', label: '箱体制造进度图' },
-    { key: 'distribution', label: '当前箱体分布图' },
-    { key: 'route', label: '工艺路线图' }
+    { key: 'route', label: '制造进度图', selector: '.process-route-panel' },
+    { key: 'manufacturing', label: '工序验收进度表', selector: '.manufacturing-panel' },
+    { key: 'distribution', label: '当前箱体分布图', selector: '.distribution-panel' }
   ];
 
   const tabs = document.createElement('nav');
@@ -18,14 +18,19 @@
   tabs.className = 'quality-tabs production-tabs';
   tabs.setAttribute('aria-label', '生产进度看板视图切换');
   tabs.innerHTML = definitions.map((item, index) =>
-    `<button class="${index === 0 ? 'active' : ''}" data-production-view="${item.key}">${item.label}</button>`
+    `<button class="${item.key === 'manufacturing' ? 'active' : ''}" data-production-view="${item.key}">${item.label}</button>`
   ).join('');
   stack.parentElement.insertBefore(tabs, stack);
 
-  panels.forEach((panel, index) => {
+  definitions.forEach((item, index) => {
+    const panel = stack.querySelector(item.selector);
+    if (!panel) return;
+    stack.append(panel);
     panel.classList.add('production-pane');
-    panel.dataset.productionView = definitions[index].key;
-    panel.classList.toggle('active', index === 0);
+    panel.dataset.productionView = item.key;
+    panel.classList.toggle('active', item.key === 'manufacturing');
+    const number = panel.querySelector('.panel-index');
+    if (number) number.textContent = String(index+1).padStart(2,'0');
   });
 
   function activateProductionPane(name) {

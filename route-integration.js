@@ -2,13 +2,26 @@
   'use strict';
   const $=s=>document.querySelector(s),frame=$('#processRouteFrame'),panel=$('.process-route-panel');
   if(!frame||!panel)return;
+  const catalog=window.QMS_ROUTE_CATALOG,params=new URLSearchParams(location.search);
+  const state={routeId:catalog?.getRoute(params.get('route'))?.id || 'RD-R01',workshop:params.get('workshop') || ''};
+  const currentRoute=()=>catalog?.getRoute(state.routeId) || window.ROCKDALE_ROUTE;
   let focused=null;
-  function open(id){
+  function saveLocation(){
+    const url=new URL(location.href);url.searchParams.set('project',$('#projectSelect').value);
+    url.searchParams.set('production',$('#productionTabs .active').dataset.productionView);
+    if($('#projectSelect').value==='rd'){url.searchParams.set('route',state.routeId);if(state.workshop)url.searchParams.set('workshop',state.workshop);else url.searchParams.delete('workshop');}
+    else{url.searchParams.delete('route');url.searchParams.delete('workshop');}
+    history.replaceState(null,'',url);
+  }
+  function open(id,context={}){
     if($('#projectSelect').value!=='rd')return;
-    const node=window.ROCKDALE_ROUTE.nodes.find(n=>n.id===id);if(!node)return;
+    const routeId=catalog?.getRoute(context.routeId)?.id || state.routeId;
+    const workshop=context.workshop ?? (panel.classList.contains('active') ? state.workshop : '');
+    const data=catalog?.scope(routeId,workshop) || currentRoute();
+    const node=data.nodes.find(n=>n.id===id);if(!node)return;
     focused=document.activeElement;
     $('#drawerTitle').textContent='工序详情 · '+id+' '+node.name;
-    window.QMS_ROUTE_DETAIL.mount($('#drawerBody'),node);
+    window.QMS_ROUTE_DETAIL.mount($('#drawerBody'),node,data);
     const drawer=$('#drawer');drawer.dataset.routeDetail='true';drawer.setAttribute('role','dialog');drawer.setAttribute('aria-modal','true');drawer.setAttribute('aria-labelledby','drawerTitle');drawer.classList.add('open');drawer.scrollTop=0;
     $('#backdrop').classList.add('open');$('#closeDrawer').focus({preventScroll:true});
   }
@@ -21,16 +34,21 @@
   function update(){
     const rd=$('#projectSelect').value==='rd',active=panel.classList.contains('active');
     $('#routeUnavailable').hidden=rd;frame.hidden=!rd;
-    if(rd&&active){if(!frame.getAttribute('src'))frame.src='process-demos/index.html?embedded=1';else requestAnimationFrame(()=>frame.contentWindow?.postMessage({type:'qms-route-visible'},location.origin));}
+    if(rd&&active){if(!frame.getAttribute('src')){const url=new URL('process-demos/index.html',location.href);url.searchParams.set('embedded','1');url.searchParams.set('route',state.routeId);if(state.workshop)url.searchParams.set('workshop',state.workshop);frame.src=url.pathname+url.search;}else requestAnimationFrame(()=>frame.contentWindow?.postMessage({type:'qms-route-visible'},location.origin));}
     if(!rd&&$('#drawer').dataset.routeDetail==='true'){$('#drawer').classList.remove('open');$('#backdrop').classList.remove('open');restoreFocus();}
   }
   addEventListener('message',e=>{
     if(e.origin!==location.origin||e.source!==frame.contentWindow)return;
-    if(e.data?.type==='qms-route-select')open(e.data.id);
-    if(e.data?.type==='qms-route-height'&&Number.isFinite(e.data.height))frame.style.height=Math.max(500,Math.min(1000,e.data.height))+'px';
+    if(e.data?.type==='qms-route-select')open(e.data.id,e.data);
+    if(e.data?.type==='qms-route-context'&&catalog?.getRoute(e.data.routeId)){
+      state.routeId=e.data.routeId;state.workshop=typeof e.data.workshop==='string' ? e.data.workshop : '';
+      if($('#drawer').dataset.routeDetail==='true'){$('#drawer').classList.remove('open');$('#backdrop').classList.remove('open');restoreFocus();}
+      if($('#projectSelect').value==='rd')window.QMS_RD_DASHBOARD.render();saveLocation();
+    }
+    if(e.data?.type==='qms-route-height'&&Number.isFinite(e.data.height))frame.style.height=Math.max(500,Math.min(1600,e.data.height))+'px';
   });
-  $('#productionTabs').addEventListener('click',()=>{update();const url=new URL(location.href);url.searchParams.set('production',$('#productionTabs .active').dataset.productionView);history.replaceState(null,'',url);});
-  $('#projectSelect').addEventListener('change',()=>{update();const url=new URL(location.href);url.searchParams.set('project',$('#projectSelect').value);history.replaceState(null,'',url);});
+  $('#productionTabs').addEventListener('click',()=>{update();saveLocation();});
+  $('#projectSelect').addEventListener('change',()=>{update();saveLocation();});
   $('#closeDrawer').addEventListener('click',restoreFocus);$('#backdrop').addEventListener('click',restoreFocus);
   document.addEventListener('keydown',e=>{
     if($('#drawer').dataset.routeDetail!=='true')return;
@@ -39,5 +57,6 @@
   });
   const initial=new URLSearchParams(location.search).get('production');
   if(['manufacturing','distribution','route'].includes(initial))window.QMS_PRODUCTION_TABS.activate(initial);
-  window.QMS_ROUTE_HOST={open,update};update();
+  else if($('#projectSelect').value==='rd')window.QMS_PRODUCTION_TABS.activate('route');
+  window.QMS_ROUTE_HOST={open,update,currentRoute};if($('#projectSelect').value==='rd')window.QMS_RD_DASHBOARD.render();update();
 })();

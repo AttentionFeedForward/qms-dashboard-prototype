@@ -8,13 +8,13 @@
     production: {
       index: '01',
       eyebrow: 'PRODUCTION PROGRESS',
-      title: '模块箱体生产进度看板',
+      title: '进度看板',
       description: '查看制造阶段累计完成进度与当前箱体节点分布。'
     },
     quality: {
       index: '02',
       eyebrow: 'QUALITY INSPECTION',
-      title: '模块箱体质检看板',
+      title: '质检看板',
       description: '从工序、车间、班组和工人四个维度查看质检表现。'
     }
   };

@@ -1,0 +1,16 @@
+/* Keep route scope explicit without crowding the existing canvas tools. */
+.route-filters{display:flex;flex-wrap:wrap;align-items:center;gap:14px 24px;padding:14px 20px;border-bottom:1px solid #21424b;background:#0a2028}
+.route-filters label{display:flex;align-items:center;gap:10px;min-width:0;color:#92adb6;font-size:12px}
+.route-picker{flex:0 1 300px}.route-picker>span,.workshop-search>span{white-space:nowrap}
+.route-picker select{width:100%;min-width:0;height:38px;padding:8px 30px 8px 10px;font-size:13px;background:#0b1d24;border-color:#315560}
+.workshop-search{flex:0 1 260px}.workshop-search input{box-sizing:border-box;width:100%;min-width:0;height:38px;padding:8px 10px;border:1px solid #315560;border-radius:4px;background:#0b1d24;color:#e8f3f1;font:13px "Microsoft YaHei",sans-serif;color-scheme:dark}
+.workshop-search input::placeholder{color:#76969f}.route-filters input:focus-visible{outline:2px solid #55d6d0;outline-offset:2px}
+.route-scope-summary{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:flex-end;gap:4px 8px;margin-left:auto;color:#92adb6;font-size:12px;line-height:1.5}
+.route-scope-summary strong{font:600 24px Consolas,monospace;color:#8edfd0}.route-scope-summary small{font-size:12px;color:#b3cdd0}.route-scope-summary .scope-match{flex-basis:100%;color:#aec5cb;text-align:right}
+.node .node-top>span:first-child{font-size:14px;font-weight:600;line-height:18px;letter-spacing:.2px}
+.overview{height:30px}.overview svg{height:28px}.overview-strip{min-height:42px}
+.route-no-results{display:flex;min-height:320px;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:32px;color:#93adb4;text-align:center;font-size:13px;line-height:1.8}
+.route-no-results strong{color:#d3e6e5;font-size:15px;font-weight:500}.route-no-results button{padding:7px 14px;color:#9edfd2}
+.layout-vertical .node-top{line-height:18px}
+@media(max-width:850px){.route-filters{gap:12px;padding:12px}.route-picker{flex:1 1 250px}.workshop-search{flex:1 1 200px}.route-scope-summary{flex:1 1 auto}.route-filters label{font-size:11px}}
+@media(max-width:520px){.route-filters{padding:12px 10px;gap:10px}.route-picker,.workshop-search{flex-basis:100%}.route-filters label>span{min-width:48px}.route-scope-summary{justify-content:flex-start;flex-basis:100%;margin-left:58px}.route-scope-summary .scope-match{flex-basis:auto;text-align:left;margin-left:8px}.route-scope-summary strong{font-size:22px}.node .node-top>span:first-child{font-size:13px}}

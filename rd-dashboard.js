@@ -1,16 +1,18 @@
 (() => {
   'use strict';
-  const data=window.ROCKDALE_ROUTE,$=s=>document.querySelector(s);
-  if(!data)return;
+  const source=window.ROCKDALE_ROUTE,$=s=>document.querySelector(s);
+  if(!source)return;
   const esc=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const empty=message=>'<div class="rd-empty-state">'+message+'</div>';
   function render(){
+    const data=window.QMS_ROUTE_HOST?.currentRoute() || window.QMS_ROUTE_CATALOG?.routes[0] || source;
+    const catalog=window.QMS_ROUTE_CATALOG;
     const final=data.nodes.find(n=>n.id===data.mainSequence.at(-1));
-    const items=[['当前项目','RD-Rockdale项目',''],['统计范围','项目全周期',''],['箱体总量',data.totalBoxes,'箱'],['累计完成箱体数量',final.accepted,'箱'],['全流程一次通过率','—',''],['资料完成率','—',''],['验收完成率','—','']];
+    const items=[['当前项目','RD-Rockdale项目',''],['统计范围','项目全周期',''],['箱体总量',catalog?.projectTotal ?? data.totalBoxes,'箱'],['累计完成箱体数量',catalog?.completedBoxes ?? final.accepted,'箱'],['全流程一次通过率','—',''],['资料完成率','—',''],['验收完成率','—','']];
     $('#summaryRow').innerHTML=items.map(([label,value,unit])=>'<article class="summary-item"><span>'+label+'</span><strong>'+value+'<small>'+unit+'</small></strong></article>').join('');
     $('#syncStatus').textContent='● 数据已同步';
     $('#distribution').innerHTML=empty('当前项目暂无箱体分布数据');
-    $('#distributionTimestamp').textContent='';$('#manufacturingTimestamp').textContent='';
+    $('#distributionTimestamp').textContent='';$('#manufacturingTimestamp').textContent=data.name ? data.name+' · '+data.totalBoxes+' '+(data.unit || '箱') : '';
     $('#manufacturingProgress').innerHTML=['ST','AR'].map((phase,index)=>'<section class="manufacturing-group"><div class="manufacturing-group-title"><span>0'+(index+1)+'</span><h4>'+(phase==='ST'?'结构制造':'装修施工')+'</h4></div><div class="manufacturing-route">'+data.nodes.filter(n=>n.phase===phase).map(n=>{
       const added=n.records.filter(r=>r.acceptedAt?.slice(0,10).replaceAll('/','-')===data.progressSource.snapshotDate).length;
       return '<button class="manufacturing-card" data-rd-process="'+n.id+'"><span class="process-code">'+n.id+'</span><h5>'+esc(n.name)+'</h5><strong>'+(n.accepted/data.totalBoxes*100).toFixed(1)+'%</strong><p>验收通过 <b>'+n.accepted+' 箱</b></p><em>当日新增 +'+added+' 箱</em></button>';

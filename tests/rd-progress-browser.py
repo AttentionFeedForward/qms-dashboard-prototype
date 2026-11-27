@@ -45,7 +45,7 @@ with sync_playwright() as p:
     expect(frame.locator('[data-node="ST-04"]')).to_have_class(re.compile(r'\bselected\b'))
     expect(frame.locator('#routeScopeSummary strong')).to_have_text('3')
     layout=frame.locator('#graph').evaluate('''graph=>{
-      const controls=['#routeSelect','#workshopSearch','#search','#routeScopeSummary'].map(selector=>{const r=document.querySelector(selector).getBoundingClientRect();return {selector,center:r.top+r.height/2}});
+      const controls=['#routeSelectTrigger','#workshopSearch','#search','#routeScopeSummary'].map(selector=>{const r=document.querySelector(selector).getBoundingClientRect();return {selector,center:r.top+r.height/2}});
       const links=[...graph.querySelectorAll('.edge.main')].filter(e=>e.dataset.from.startsWith('ST-')&&e.dataset.to.startsWith('AR-'));
       const searches=['#workshopSearch','#search'].map(selector=>{const e=document.querySelector(selector),r=e.getBoundingClientRect(),s=getComputedStyle(e);return {height:r.height,font:s.font,border:s.border,background:s.backgroundColor,type:e.type}});
       const actionsOutside=['#expandAll','#collapseAll','#layoutMode'].every(selector=>!document.querySelector(selector).closest('.route-tools'));
@@ -57,7 +57,7 @@ with sync_playwright() as p:
     assert layout['stageLinks']==0,layout
     assert layout['searches'][0]==layout['searches'][1],layout
     assert layout['actionsOutside'] and layout['phaseButtons']==0,layout
-    frame.locator('#routeSelect').select_option('RD-R01')
+    frame.locator('#routeSelectTrigger').click();frame.locator('#routeOptions [data-value="RD-R01"]').click()
     frame.locator('.route-tools').scroll_into_view_if_needed()
     page.screenshot(path=str(delivery/'rd-compact-manufacturing.png'),full_page=True)
     frame.locator('#expandAll').click();expect(frame.locator('.node')).to_have_count(62)

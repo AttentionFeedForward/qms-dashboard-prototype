@@ -1,6 +1,6 @@
 (() => {
   const d = window.QMS_V2;
-  const state = { project:'mos', range:'30', processFilter:'all', period:'all', overallMetric:'fpy', workshopMetric:'count', drawerChart:null };
+  const state = { project:'rd', range:'30', processFilter:'all', period:'all', overallMetric:'fpy', workshopMetric:'count', drawerChart:null };
   const initialProject=new URLSearchParams(location.search).get('project');
   if(d.projects.some(p=>p.id===initialProject))state.project=initialProject;
   const $ = s => document.querySelector(s);

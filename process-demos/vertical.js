@@ -11,7 +11,7 @@ const state={mode:['horizontal','vertical'].includes(query)?query:'auto',orienta
  routeId:catalog?.getRoute(params.get('route'))?.id || 'RD-R01',workshop:params.get('workshop') || '',phase:'ST'};
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 let data,nodes,groups,mains,nodeMap,groupMap;
-let workshopDropdown,processDropdown,workshopTimer;
+let routeDropdown,workshopDropdown,processDropdown,workshopTimer;
 let positions=new Map(),frames=new Map(),laneBounds=new Map(),columnWidth=0,cardWidth=160,cardHeight=132,graphWidth=0,graphHeight=0,lastFocus=null;
 const get=id=>nodeMap.get(id),phaseName=p=>p==='ST'?'结构制造':'装修施工';
 const quantity=v=>Number.isInteger(v)?v:'—';
@@ -36,26 +36,30 @@ function layout(){
  const available=$('#viewport').clientWidth,horizontal=state.mode==='auto'?innerWidth>=800:state.mode==='horizontal';
  state.orientation=horizontal?'horizontal':'vertical';
  const lanes=['ST','AR'].map(phase=>mains.filter(n=>n.phase===phase)).filter(lane=>lane.length);
- cardWidth=horizontal?160:Math.max(88,Math.min(160,Math.floor((available-12-8*(lanes.length-1))/lanes.length)-36));
+ const laneGap=Math.round(Math.max(16,Math.min(112,available*.075))),sidePadding=Math.round(Math.max(6,Math.min(24,available*.025))),lanePadding=Math.round(Math.max(14,Math.min(24,available*.025)));
+ cardWidth=horizontal?160:Math.max(88,Math.min(160,Math.floor((available-sidePadding*2-laneGap*(lanes.length-1))/lanes.length)-lanePadding*2));
  cardHeight=horizontal?128:cardWidth<132?116:110;
- columnWidth=cardWidth+36;positions=new Map();frames=new Map();laneBounds=new Map();
+ columnWidth=cardWidth+lanePadding*2;positions=new Map();frames=new Map();laneBounds=new Map();
  if(!horizontal){
+  const contentWidth=lanes.length*columnWidth+(lanes.length-1)*laneGap;
+  graphWidth=Math.max(available,contentWidth+sidePadding*2);
+  const offset=(graphWidth-contentWidth)/2,nodeGap=Math.round(Math.max(28,Math.min(40,available*.03)));
   let bottom=0;
   lanes.forEach((lane,laneIndex)=>{
-   const left=6+laneIndex*(columnWidth+8);let cursor=52;
+   const left=offset+laneIndex*(columnWidth+laneGap);let cursor=72;
    laneBounds.set(lane[0].phase,{x:left,width:columnWidth});
    for(const node of lane){
     for(const group of groups.filter(group=>group.target===node.id)){
-     const frame={x:left+8,y:cursor,width:cardWidth+20,height:measure(group,false).height,phase:node.phase};
+     const frame={x:left+lanePadding-10,y:cursor,width:cardWidth+20,height:measure(group,false).height,phase:node.phase};
      frames.set(group.id,frame);
      if(state.open.has(group.id))group.members.forEach((id,index)=>positions.set(id,{x:frame.x+9,y:frame.y+45+index*(cardHeight+10)}));
-     cursor+=frame.height+24;
+     cursor+=frame.height+nodeGap;
     }
-    positions.set(node.id,{x:left+18,y:cursor});cursor+=cardHeight+28;
+    positions.set(node.id,{x:left+lanePadding,y:cursor});cursor+=cardHeight+nodeGap;
    }
    bottom=Math.max(bottom,cursor+14);
   });
-  graphWidth=lanes.length*columnWidth+(lanes.length-1)*8+12;graphHeight=bottom;return;
+  graphHeight=bottom;return;
  }
  const sizes=new Map(groups.map(group=>[group.id,measure(group,true)]));
  let laneTop=0,maxWidth=0;
@@ -110,7 +114,7 @@ function connections(){
    entry='M '+sx+' '+sy+' H '+(sx+12)+' V '+fy+' H '+f.x;
    exit='M '+(f.x+f.width)+' '+fy+' H '+(tx-12)+' V '+ty+' H '+tx;
   }else{
-   const lane=laneBounds.get(get(g.source).phase),right=lane.x+lane.width-3,left=lane.x+5,fy=f.y+f.height/2;
+   const lane=laneBounds.get(get(g.source).phase),right=lane.x+lane.width-3,left=lane.x+2,fy=f.y+f.height/2;
    entry='M '+(a.x+cardWidth)+' '+(a.y+cardHeight*.6)+' H '+right+' V '+fy+' H '+(f.x+f.width);
    exit='M '+f.x+' '+fy+' H '+left+' V '+(b.y-10)+' H '+(b.x+cardWidth/2)+' V '+b.y;
   }
@@ -234,7 +238,8 @@ workshopDropdown=window.QMS_ROUTE_DROPDOWNS.create($('#workshopSearch'),{listId:
 processDropdown=window.QMS_ROUTE_DROPDOWNS.create($('#search'),{listId:'processOptions',onSelect:item=>{locate(item.value);const node=get(item.value);message('已定位 '+node.id+' · '+node.name);notifyHeight();}});
 $('#routeSelect').innerHTML=(catalog?.routes || [data]).map(route=>'<option value="'+route.id+'">'+esc(route.name)+' · '+route.totalBoxes+' '+(route.unit || '箱')+'</option>').join('');
 $('#routeSelect').value=state.routeId;$('#workshopSearch').value=state.workshop;workshopOptions();processOptions();
-$('#routeSelect').addEventListener('change',event=>{workshopDropdown.close();processDropdown.close();$('#workshopSearch').value='';changeScope(event.target.value);workshopOptions();});
+routeDropdown=window.QMS_ROUTE_DROPDOWNS.createSelect($('#routeSelect'),{listId:'routeOptions',options:(catalog?.routes || [data]).map(route=>({value:route.id,title:route.name,label:route.totalBoxes+' '+(route.unit || '箱'),display:route.name+' · '+route.totalBoxes+' '+(route.unit || '箱')}))});
+$('#routeSelect').addEventListener('change',event=>{routeDropdown.close();workshopDropdown.close();processDropdown.close();clearTimeout(workshopTimer);$('#workshopSearch').value='';changeScope(event.target.value);workshopOptions();});
 $('#workshopSearch').addEventListener('input',()=>{clearTimeout(workshopTimer);workshopTimer=setTimeout(()=>changeScope(state.routeId,$('#workshopSearch').value.trim()),120);});
 $('#closeDrawer').addEventListener('click',()=>$('#drawer').close());
 $('#drawer').addEventListener('click',event=>{if(event.target===$('#drawer')&&event.clientX<$('#drawer').getBoundingClientRect().left)$('#drawer').close();});

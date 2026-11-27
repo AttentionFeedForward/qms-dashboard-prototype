@@ -1,4 +1,4 @@
-"""Both searchable dropdowns use matching in-page panels anchored below the input."""
+"""All three route dropdowns use matching in-page panels anchored below the input."""
 import json,sys
 from pathlib import Path
 from urllib.parse import urlsplit,urlunsplit
@@ -18,10 +18,11 @@ with sync_playwright() as p:
     page=browser.new_page(viewport={'width':1484,'height':900})
     page.route('https://cdn.jsdelivr.net/**',lambda route:route.abort())
     errors=[];page.on('pageerror',lambda error:errors.append(str(error)))
+    page.goto(url,wait_until='domcontentloaded');expect(page.locator('#projectSelect')).to_have_value('rd')
     page.goto(address,wait_until='domcontentloaded');frame=page.frame_locator('#processRouteFrame')
     expect(frame.locator('#routeSelect')).to_have_value('RD-R01')
     styles=[]
-    for field,list_id in [('workshopSearch','workshopOptions'),('search','processOptions')]:
+    for field,list_id in [('routeSelectTrigger','routeOptions'),('workshopSearch','workshopOptions'),('search','processOptions')]:
         assert frame.locator('#'+field).get_attribute('list') is None
         frame.locator('#'+field).click()
         expect(frame.locator('#'+list_id)).to_be_visible()
@@ -33,6 +34,15 @@ with sync_playwright() as p:
         styles.append(geometry)
         frame.locator('#'+field).press('Escape')
         expect(frame.locator('#'+list_id)).to_be_hidden()
+    assert frame.locator('#routeSelect').is_hidden()
+    frame.locator('#routeSelectTrigger').click()
+    frame.locator('#routeOptions [data-value="RD-R02"]').click()
+    expect(frame.locator('#routeSelectTrigger')).to_have_value('样箱 · 3 台')
+    expect(frame.locator('#routeScopeSummary strong')).to_have_text('3')
+    expect(frame.locator('[data-node="ST-01"]')).to_have_attribute('data-accepted','3')
+    frame.locator('#routeSelectTrigger').click();frame.locator('#routeSelectTrigger').press('Enter')
+    expect(frame.locator('#routeSelectTrigger')).to_have_value('标准工艺路线 · 156 箱')
+    expect(frame.locator('#routeScopeSummary strong')).to_have_text('156')
     frame.locator('#search').click()
     expect(frame.locator('#processOptions [role="option"]')).to_have_count(62)
     assert panel_geometry(frame,'search','processOptions')['scroll']
@@ -69,14 +79,36 @@ with sync_playwright() as p:
     frame.locator('#search').press('Escape')
     for width in [390,320]:
         page.set_viewport_size({'width':width,'height':900});page.goto(address,wait_until='domcontentloaded');frame=page.frame_locator('#processRouteFrame')
-        for field,list_id in [('workshopSearch','workshopOptions'),('search','processOptions')]:
+        for field,list_id in [('routeSelectTrigger','routeOptions'),('workshopSearch','workshopOptions'),('search','processOptions')]:
             frame.locator('#'+field).click();expect(frame.locator('#'+list_id)).to_be_visible()
             geometry=panel_geometry(frame,field,list_id)
             assert geometry['panelTop']>=geometry['inputBottom']+6 and geometry['panelRight']<=geometry['viewport'] and geometry['panelLeft']>=0,geometry
             if width==390 and field=='search':page.screenshot(path=str(delivery/'rd-dropdown-mobile.png'))
             frame.locator('#'+field).press('Escape')
         assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+1')
+    spacing=[]
+    for width in [1484,1024,623,390,320]:
+        page.set_viewport_size({'width':width,'height':1000});page.goto(address,wait_until='domcontentloaded');frame=page.frame_locator('#processRouteFrame')
+        frame.locator('#layoutMode').select_option('vertical')
+        geometry=frame.locator('#graph').evaluate('''graph=>{
+          const [st,ar]=['ST','AR'].map(phase=>graph.querySelector('[data-phase-label="'+phase+'"]').getBoundingClientRect());
+          const g=graph.getBoundingClientRect(),vp=document.querySelector('#viewport');
+          return {gap:ar.left-st.right-16,left:st.left-g.left-8,right:g.right-ar.right-8,graph:g.width,viewport:vp.clientWidth};
+        }''')
+        assert 16<=geometry['gap']<=112 and abs(geometry['left']-geometry['right'])<1,geometry
+        assert geometry['graph']<=geometry['viewport']+1,geometry
+        frame.locator('#expandAll').click()
+        overlaps=frame.locator('#graph').evaluate('''graph=>{
+          const nodes=[...graph.querySelectorAll('.node')].map(e=>({id:e.dataset.node,r:e.getBoundingClientRect()})),bad=[];
+          for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){const a=nodes[i],b=nodes[j];if(Math.min(a.r.right,b.r.right)>Math.max(a.r.left,b.r.left)+1&&Math.min(a.r.bottom,b.r.bottom)>Math.max(a.r.top,b.r.top)+1)bad.push([a.id,b.id]);}
+          return bad;
+        }''')
+        assert not overlaps,overlaps
+        frame.locator('#collapseAll').click();frame.locator('.route-tools').scroll_into_view_if_needed()
+        if width in [1484,623,390]:page.screenshot(path=str(delivery/('rd-spaced-vertical-'+str(width)+'.png')))
+        spacing.append({'width':width,**geometry})
+    assert spacing[0]['gap']>spacing[-1]['gap']
     assert not errors,errors
-    result={'url':url,'dropdowns':styles,'direction':'below','pointerAndKeyboard':'passed','mobileWidths':[390,320],'errors':errors}
+    result={'url':url,'defaultProject':'rd','dropdowns':styles,'direction':'below','pointerAndKeyboard':'passed','mobileWidths':[390,320],'verticalSpacing':spacing,'errors':errors}
     (delivery/'rd-dropdown-verification.json').write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
     print(json.dumps(result,ensure_ascii=True));browser.close()

@@ -42,7 +42,7 @@ with sync_playwright() as p:
     page.screenshot(path=str(delivery/'nov26-two-row-verified.png'),full_page=True)
     checks.append('navigation, original counts, larger codes and separate phase rows')
 
-    frame.locator('#routeSelect').select_option('RD-R02')
+    frame.locator('#routeSelectTrigger').click();frame.locator('#routeOptions [data-value="RD-R02"]').click()
     expect(frame.locator('#routeScopeSummary strong')).to_have_text('3')
     expect(frame.locator('[data-node="ST-01"]')).to_have_attribute('data-reported','3')
     expect(frame.locator('[data-node="ST-01"]')).to_have_attribute('data-accepted','3')
@@ -93,7 +93,7 @@ with sync_playwright() as p:
     expect(frame.locator('[data-node]')).to_have_count(62)
     no_node_overlap(frame)
     frame.locator('#collapseAll').click()
-    frame.locator('#routeSelect').select_option('RD-R01')
+    frame.locator('#routeSelectTrigger').click();frame.locator('#routeOptions [data-value="RD-R01"]').click()
     expect(frame.locator('[data-node="ST-01"]')).to_have_attribute('data-accepted','121')
     page.locator('#productionTabs button[data-production-view="manufacturing"]').click()
     expect(page.locator('#manufacturingTimestamp')).to_contain_text('全部工艺路线')

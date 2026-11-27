@@ -6,6 +6,18 @@
 .route-picker select,.route-search-field input{box-sizing:border-box;width:100%;min-width:0;height:36px;padding:8px 10px;border:1px solid #315560;border-radius:4px;background:#0b1d24;color:#e8f3f1;font:13px "Microsoft YaHei",sans-serif;color-scheme:dark}
 .route-picker select{padding-right:28px}.route-search-field input::placeholder{color:#76969f}
 .route-search-field input:focus-visible{outline:2px solid #55d6d0;outline-offset:2px}
+.route-combobox{position:relative;flex:1;min-width:0;width:100%}
+.route-combobox input{padding-right:34px}
+.route-combobox-toggle{position:absolute;right:4px;top:4px;display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;background:transparent;color:#a4c0c5}
+.route-combobox-panel{position:fixed;z-index:1000;padding:6px 0;border:1px solid #d5dee1;border-radius:12px;background:#fff;color:#142b33;box-shadow:0 9px 28px #0004;color-scheme:light}
+.route-combobox-panel[hidden]{display:none}
+.route-combobox-panel:before{content:"";position:absolute;left:var(--combo-arrow-left,24px);top:-7px;width:12px;height:12px;border-top:1px solid #d5dee1;border-left:1px solid #d5dee1;background:#fff;transform:rotate(45deg)}
+.route-combobox-list{position:relative;max-height:260px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#a8b3b8 #f2f5f6}
+.route-combobox-option{display:grid;gap:4px;padding:11px 15px;cursor:pointer;line-height:1.5;overflow-wrap:anywhere}
+.route-combobox-option.active{background:#eaf4f3}
+.route-combobox-value{font:14px/1.5 "Microsoft YaHei",sans-serif;color:#152e36}
+.route-combobox-label{font:12px/1.5 "Microsoft YaHei",sans-serif;color:#53666e}
+.route-combobox-empty{margin:0;padding:15px;color:#75848a;font:12px/1.6 "Microsoft YaHei",sans-serif}
 .route-scope-summary{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:flex-end;gap:3px 6px;min-width:86px;margin-left:auto;color:#92adb6;font-size:11px;line-height:1.5}
 .route-scope-summary strong{font:600 23px Consolas,monospace;color:#8edfd0}.route-scope-summary small{font-size:11px;color:#b3cdd0}
 .route-scope-summary .scope-match{flex-basis:100%;color:#aec5cb;text-align:right}

@@ -11,6 +11,7 @@ const state={mode:['horizontal','vertical'].includes(query)?query:'auto',orienta
  routeId:catalog?.getRoute(params.get('route'))?.id || 'RD-R01',workshop:params.get('workshop') || '',phase:'ST'};
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 let data,nodes,groups,mains,nodeMap,groupMap;
+let workshopDropdown,processDropdown,workshopTimer;
 let positions=new Map(),frames=new Map(),laneBounds=new Map(),columnWidth=0,cardWidth=160,cardHeight=132,graphWidth=0,graphHeight=0,lastFocus=null;
 const get=id=>nodeMap.get(id),phaseName=p=>p==='ST'?'结构制造':'装修施工';
 const quantity=v=>Number.isInteger(v)?v:'—';
@@ -201,9 +202,9 @@ function openDrawer(id){
  if(!wasOpen)$('#drawer').showModal();$('#drawer').scrollTop=0;$('#closeDrawer').focus({preventScroll:true});
 }
 function workshopOptions(){
- $('#workshopOptions').innerHTML=(catalog?.workshops(state.routeId) || []).map(name=>'<option value="'+esc(name)+'"></option>').join('');
+ workshopDropdown?.setOptions(catalog?.workshops(state.routeId) || []);
 }
-function processOptions(){ $('#processOptions').innerHTML=nodes.map(node=>'<option value="'+esc(node.id)+'" label="'+esc(node.name)+'"></option>').join(''); }
+function processOptions(){ processDropdown?.setOptions(nodes.map(node=>({value:node.id,label:node.name}))); }
 function changeScope(routeId,workshop=''){
  state.routeId=routeId;state.workshop=workshop;state.selected=null;state.query='';state.open.clear();$('#search').value='';message('');
  refreshData();processOptions();$('#viewport').scrollTo({left:0,top:0,behavior:'instant'});render();
@@ -228,11 +229,12 @@ $('#search').addEventListener('input',()=>{
  message(state.query?(hits.length?'找到 '+hits.length+' 道工序，按回车定位并展开所在支线。':'未找到工序，请尝试编号或名称。'):'');
  notifyHeight();
 });
-$('#search').addEventListener('keydown',event=>{if(event.key==='Enter'){const n=nodes.find(matches);if(n){locate(n.id);message('已定位 '+n.id+' · '+n.name);notifyHeight();}}});
+$('#search').addEventListener('keydown',event=>{if(event.key==='Enter'&&!processDropdown?.isOpen()){const n=nodes.find(matches);if(n){locate(n.id);message('已定位 '+n.id+' · '+n.name);notifyHeight();}}});
+workshopDropdown=window.QMS_ROUTE_DROPDOWNS.create($('#workshopSearch'),{listId:'workshopOptions',onSelect:()=>{clearTimeout(workshopTimer);changeScope(state.routeId,$('#workshopSearch').value.trim());}});
+processDropdown=window.QMS_ROUTE_DROPDOWNS.create($('#search'),{listId:'processOptions',onSelect:item=>{locate(item.value);const node=get(item.value);message('已定位 '+node.id+' · '+node.name);notifyHeight();}});
 $('#routeSelect').innerHTML=(catalog?.routes || [data]).map(route=>'<option value="'+route.id+'">'+esc(route.name)+' · '+route.totalBoxes+' '+(route.unit || '箱')+'</option>').join('');
 $('#routeSelect').value=state.routeId;$('#workshopSearch').value=state.workshop;workshopOptions();processOptions();
-$('#routeSelect').addEventListener('change',event=>{$('#workshopSearch').value='';changeScope(event.target.value);workshopOptions();});
-let workshopTimer;
+$('#routeSelect').addEventListener('change',event=>{workshopDropdown.close();processDropdown.close();$('#workshopSearch').value='';changeScope(event.target.value);workshopOptions();});
 $('#workshopSearch').addEventListener('input',()=>{clearTimeout(workshopTimer);workshopTimer=setTimeout(()=>changeScope(state.routeId,$('#workshopSearch').value.trim()),120);});
 $('#closeDrawer').addEventListener('click',()=>$('#drawer').close());
 $('#drawer').addEventListener('click',event=>{if(event.target===$('#drawer')&&event.clientX<$('#drawer').getBoundingClientRect().left)$('#drawer').close();});

@@ -52,6 +52,7 @@
   function update(){
     const rd=$('#projectSelect').value==='rd',active=panel.classList.contains('active');
     $('#routeUnavailable').hidden=rd;frame.hidden=!rd;
+    if(!rd||!active)frame.contentWindow?.postMessage({type:'qms-route-dismiss-dropdowns'},location.origin);
     if(rd&&active){if(!frame.getAttribute('src')){const url=new URL('process-demos/index.html',location.href);url.searchParams.set('embedded','1');url.searchParams.set('route',state.routeId);if(state.workshop)url.searchParams.set('workshop',state.workshop);frame.src=url.pathname+url.search;}else requestAnimationFrame(()=>frame.contentWindow?.postMessage({type:'qms-route-visible'},location.origin));}
     if(!rd&&$('#drawer').dataset.routeDetail==='true'){$('#drawer').classList.remove('open');$('#backdrop').classList.remove('open');restoreFocus();}
   }
@@ -64,6 +65,10 @@
       if($('#projectSelect').value==='rd')window.QMS_RD_DASHBOARD.render();saveLocation();
     }
     if(e.data?.type==='qms-route-height'&&Number.isFinite(e.data.height))frame.style.height=Math.max(320,Math.min(1600,e.data.height))+'px';
+    if(e.data?.type==='qms-route-dropdown-space'&&$('#projectSelect').value==='rd'&&panel.classList.contains('active')&&Number.isFinite(e.data.bottom)){
+      const delta=frame.getBoundingClientRect().top+Math.min(frame.clientHeight,e.data.bottom)-innerHeight+12;
+      if(delta>0)scrollBy({top:delta,behavior:'instant'});
+    }
   });
   $('#productionTabs').addEventListener('click',()=>{update();saveLocation();});
   $('#projectSelect').addEventListener('change',()=>{update();saveLocation();});
